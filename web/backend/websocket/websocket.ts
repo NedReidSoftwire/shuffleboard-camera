@@ -1,4 +1,4 @@
-import {Server, Socket} from "socket.io";
+import {Server} from "socket.io";
 import {Server as HttpServer} from "http";
 import {Disc, DiscWithIndex, Distance, ShortCircuitGameState, TeamColour} from "../../types/types";
 
@@ -32,12 +32,10 @@ export const createSocket = (server: HttpServer) => {
 };
 
 function sendState(newDiscsJson: string[], io: Server) {
-  console.log(newDiscsJson)
   try {
-    console.log("hi")
-    const newDiscs = newDiscsJson.map((jsonString) => JSON.parse(jsonString))
+    const newDiscs: Disc[] = newDiscsJson.map((jsonString) => JSON.parse(jsonString))
+
     updateShortCircuitGameState(newDiscs)
-    console.log(discState)
     io.emit("short-circuit", discState)
   }
   catch (e) {
@@ -63,8 +61,8 @@ const calculateDistance = (discs: DiscWithIndex[])  => {
           disc2: discToCompare.index
         }
       }
+      return smallestDist
     }, undefined)
-
     if (minDistFromCurrentDisc && (!smallestDist || minDistFromCurrentDisc.distance < smallestDist.distance)) {
       return minDistFromCurrentDisc
     }
@@ -108,6 +106,5 @@ function updateShortCircuitGameState(newDiscs: Disc[]): ShortCircuitGameState {
   }
   return discState
 }
-
 
 

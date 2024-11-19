@@ -1,6 +1,6 @@
 export enum TeamColour {
-    BLUE = "blue",
-    RED = "red"
+    BLUE = "Blue",
+    RED = "Red"
 }
 
 export type Disc = {
