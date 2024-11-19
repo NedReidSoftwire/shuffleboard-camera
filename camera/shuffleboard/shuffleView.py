@@ -6,7 +6,7 @@ from enum import Enum
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
-DEBUG = True
+DEBUG = False
 
 class DiscColour(Enum):
   RED = 'Red'
