@@ -43,9 +43,6 @@ def __get_discs(img, colour):
     blurred = cv2.GaussianBlur(detections, (9, 9), 2)
     edges = cv2.Canny(blurred, 50, 150)
 
-    # cv2.imwrite('gray.png', gray)
-    cv2.imwrite('blurred.png', blurred)
-
     # https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
     circles = cv2.HoughCircles(
         edges,
@@ -74,7 +71,7 @@ def __get_discs(img, colour):
 
         return discs
     else:
-        raise Exception("No circles detected in the image")
+        raise Exception(f"No circles detected in the image for puck colour: {colour.value}")
 
 def __get_red_objects(img):
     hsvImage = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -98,8 +95,6 @@ def __get_blue_objects(img):
     blueLower = np.array([100, 140, 5])
     blueUpper = np.array([130, 255, 255])
 
-    print(blueLower, blueUpper)
-
     blueMask = cv2.inRange(hsvImage, blueLower, blueUpper)
     blue_objects = cv2.bitwise_and(img, img, mask=blueMask)
 
@@ -119,7 +114,7 @@ def get_disc_coordinates(img):
         red_discs = __get_discs(transformed_image, DiscColour.RED)
         blue_discs = __get_discs(transformed_image, DiscColour.BLUE)
 
-        print(len(red_discs), 'red', len(blue_discs), 'blue')
+        print('Detections:', len(red_discs), 'red', len(blue_discs), 'blue')
 
         all_discs = red_discs + blue_discs
         print('all_discs', all_discs)
@@ -133,3 +128,4 @@ if __name__ == '__main__':
     img = cv2.imread('capture.png')
 
     coords = get_disc_coordinates(img)
+    print('coords', coords)
