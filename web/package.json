@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "tsx watch --exclude * --exclude frontend --include backend --clear-screen=false backend/index.ts",
+    "start": "tsx backend/index.ts",
     "build": "vite build",
     "start-prod": "tsx --env-file=production.env backend/index.ts",
     "build-run": "npm run build && npm run start-prod",

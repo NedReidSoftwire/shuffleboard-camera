@@ -10,8 +10,6 @@ redUpper = np.array([180, 255, 255])
 redLower2 = np.array([0, 150, 20])
 redUpper2 = np.array([20, 255, 255])
 
-
-
 corners = np.array([[55, 38], [191, 28], [465, 738], [1086, 467]], dtype=np.float32)
 newCorners = np.array([[0, 0], [500, 0], [0, 1000] ,[500, 1000]], dtype=np.float32)
 
