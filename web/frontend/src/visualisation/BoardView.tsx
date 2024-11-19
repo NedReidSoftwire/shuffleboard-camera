@@ -2,9 +2,9 @@ import {Canvas, useLoader, useThree} from "@react-three/fiber";
 
 import {OBJLoader} from "three/addons/loaders/OBJLoader.js";
 import {Suspense} from "react";
-import {Environment} from "@react-three/drei";
+import {Environment, Line} from "@react-three/drei";
 import {MTLLoader} from "three/addons/loaders/MTLLoader.js";
-import {Disc, TeamColour} from "../../../types/types.ts";
+import {Disc, ShortCircuitState, TeamColour} from "../../../types/types.ts";
 import {BOARD_DIMENSIONS, DISC_DIAMETER} from "../../../constants/constants.ts";
 
 const BOARD_MODEL_LENGTH = 2.25
@@ -22,7 +22,7 @@ const realToGameWorldMapping = (disc: Disc): Disc => {
     x: (BOARD_DIMENSIONS.y - disc.y) * GLOBAL_SCALE
   }
 }
-const discPos = (disc: Disc) => [disc.x, 0, disc.y]
+const discPos= (disc: Disc): [x: number, y: number, z: number]  => [disc.x, 0, disc.y]
 
 const FixedCamera = () => {
   useThree(({ camera }) => {
@@ -45,9 +45,10 @@ const useObj = (src: string) => {
 
 type BoardViewProps = {
   discs: Disc[]
+  shortCircuit?: ShortCircuitState
 }
 
-const BoardView = ({ discs }: BoardViewProps) => {
+const BoardView = ({ discs, shortCircuit }: BoardViewProps) => {
   const redDisc = useObj("/models/red_disc");
   const blueDisc = useObj("/models/blue_disc");
   const board = useObj("/models/board");
@@ -63,7 +64,12 @@ const BoardView = ({ discs }: BoardViewProps) => {
               <primitive object={disc.colour === TeamColour.RED? redDisc.clone(): blueDisc.clone()} position={discPos(disc)} scale={6.8}/>
           ))}
           <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
-
+          {shortCircuit && shortCircuit.redDistance && (
+            <Line points={[discPos(gameWorldDiscs[shortCircuit.redDistance.disc1]), discPos(gameWorldDiscs[shortCircuit.redDistance.disc2])]} color={'red'} linewidth={15} />
+          )}
+          {shortCircuit && shortCircuit.blueDistance && (
+            <Line points={[discPos(gameWorldDiscs[shortCircuit.blueDistance.disc1]), discPos(gameWorldDiscs[shortCircuit.blueDistance.disc2])]} color={'blue'} linewidth={15} />
+          )}
           <Environment files="/textures/sky.exr" background />
           <ambientLight intensity={0.5} />
           <directionalLight intensity={1} />

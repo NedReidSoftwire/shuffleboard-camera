@@ -23,10 +23,12 @@ export type Distance = {
     disc2: number
 }
 
+export type ShortCircuitState = {
+    blueDistance?: Distance
+    redDistance?: Distance
+    winner?: TeamColour
+}
+
 export type ShortCircuitGameState = GameState & {
-    shortCircuit: {
-        blueDistance?: Distance
-        redDistance?: Distance
-        winner?: TeamColour
-    }
+    shortCircuit: ShortCircuitState
 }

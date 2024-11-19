@@ -29,6 +29,14 @@ function App() {
         Shuffleboard Camera
       </div>
       <BoardView discs={testDiscs} />
+        <div className="w-full grid grid-cols-12 h-32 bg-purple-500 border-t-8 border-amber-200">
+            <div className="col-span-3 bg-blue-600 h-full p-4">
+                <div className="text-lg font-semibold text-white">Blue Distance:</div>
+                <div className="text-4xl font-semibold text-white">{}</div>
+            </div>
+            <div className="col-span-6 bg-purple-300 h-full"></div>
+            <div className="col-span-3 bg-red-500 h-full"></div>
+        </div>
     </div>
   );
 }
