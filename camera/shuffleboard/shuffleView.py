@@ -69,7 +69,7 @@ def __get_discs(img, colour):
 
         return discs
     else:
-        raise Exception(f"No circles detected in the image for puck colour: {colour.value}")
+        return []
 
 def __get_red_objects(img):
     hsvImage = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -116,6 +116,9 @@ def get_disc_coordinates(img):
 
         all_discs = red_discs + blue_discs
         print('all_discs', all_discs)
+
+        if len(all_discs) == 0:
+            raise Exception("No discs detected")
 
         return all_discs
     except Exception as e:
