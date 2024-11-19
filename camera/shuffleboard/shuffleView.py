@@ -1,11 +1,23 @@
 import cv2
 import numpy as np
 from utils import get_limits
+from dataclasses import dataclass
+from enum import Enum
+
+class DiscColour(Enum):
+  RED = 1
+  BLUE = 2
+
+@dataclass
+class Disc:
+  x: int
+  y: int
+  colour: DiscColour
 
 surface_size = (400, 1200)
 board_corners = np.array([[412, 698], [434, 321], [1575, 293], [1623, 627]], dtype=np.float32) # BL, TL, TR, BR
 
-def get_transformed_image(corners):
+def __get_transformed_image(corners):
     new_corners = np.array([[0, 0], [surface_size[0], 0], surface_size, [0, surface_size[1]]], dtype=np.float32)
 
     T = cv2.getPerspectiveTransform(corners, new_corners)
@@ -13,7 +25,7 @@ def get_transformed_image(corners):
 
     return pers_image
 
-def get_disc_pixel_coordinates(img):
+def __get_discs(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (9, 9), 2)
     edges = cv2.Canny(blurred, 50, 150)
@@ -37,10 +49,9 @@ def get_disc_pixel_coordinates(img):
         debug_img = img.copy()
         circles = np.uint16(np.around(circles))
 
-        coordinates = [] # TODO: NP array and transform op?
-
+        discs = []
         for x, y, radius in circles[0, :]:
-            coordinates.append((x.item(), y.item()))
+            discs.append(Disc(x=x.item(), y=y.item(), colour=DiscColour.BLUE)) # TODO: Support colour identification
 
             center = (x, y)
             cv2.circle(debug_img, center, radius, (0, 255, 0), 2)
@@ -48,7 +59,7 @@ def get_disc_pixel_coordinates(img):
         
         cv2.imwrite('debug_detections.png', debug_img)
 
-        return coordinates
+        return discs
     else:
         raise Exception("No circles detected in the image")
 
@@ -71,13 +82,13 @@ def get_disc_pixel_coordinates(img):
     # finalIm = cv2.cvtColor(hsvImage, cv2.COLOR_HSV2BGR)
 
 def get_disc_coordinates(img):
-    transformed_image = get_transformed_image(board_corners)
+    transformed_image = __get_transformed_image(board_corners)
     cv2.imwrite('transformed_image.png', transformed_image)
 
-    coordinates = get_disc_pixel_coordinates(transformed_image)
-    print('coordinates', coordinates)
+    discs = __get_discs(transformed_image)
+    print('discs', discs)
 
-    return coordinates
+    return discs
 
 if __name__ == '__main__':
     img = cv2.imread('capture.png')
