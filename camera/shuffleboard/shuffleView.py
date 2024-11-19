@@ -9,8 +9,8 @@ from dataclasses_json import dataclass_json
 @dataclass_json
 @dataclass
 class DiscColour(Enum):
-  RED = 1
-  BLUE = 2
+  RED = 'Red'
+  BLUE = 'Blue'
 
 @dataclass_json
 @dataclass
@@ -33,10 +33,10 @@ def __get_transformed_image(img, corners):
 def __get_discs(img, colour):
     if colour == DiscColour.RED:
         detections = __get_red_objects(img)
-        cv2.imwrite('red.png', detections)
+        colour_rgb = (0, 0, 255)
     elif colour == DiscColour.BLUE:
         detections = __get_blue_objects(img)
-        cv2.imwrite('blue.png', detections)
+        colour_rgb = (255, 0, 0)
     else:
         raise Exception("Unsupported disc colour.")
 
@@ -67,10 +67,10 @@ def __get_discs(img, colour):
             discs.append(Disc(x=x.item(), y=y.item(), colour=colour))
 
             center = (x, y)
-            cv2.circle(debug_img, center, radius, (0, 255, 0), 2)
-            cv2.circle(debug_img, center, 8, (0, 255, 0), -1)
+            cv2.circle(debug_img, center, radius, colour_rgb, 2)
+            cv2.circle(debug_img, center, 8, colour_rgb, -1)
         
-        cv2.imwrite('debug_detections.png', debug_img)
+        cv2.imwrite(f'debug_detections_{colour.value}.png', debug_img)
 
         return discs
     else:
@@ -112,16 +112,22 @@ def __get_binary_thresholded_img(img_hsv):
     return detections
 
 def get_disc_coordinates(img):
-    transformed_image = __get_transformed_image(img, board_corners)
-    cv2.imwrite('transformed_image.png', transformed_image)
+    try:
+        transformed_image = __get_transformed_image(img, board_corners)
+        cv2.imwrite('transformed_image.png', transformed_image)
 
-    red_discs = __get_discs(transformed_image, DiscColour.RED)
-    blue_discs = __get_discs(transformed_image, DiscColour.BLUE)
+        red_discs = __get_discs(transformed_image, DiscColour.RED)
+        blue_discs = __get_discs(transformed_image, DiscColour.BLUE)
 
-    all_discs = red_discs + blue_discs
-    print('all_discs', all_discs)
+        print(len(red_discs), 'red', len(blue_discs), 'blue')
 
-    return all_discs
+        all_discs = red_discs + blue_discs
+        print('all_discs', all_discs)
+
+        return all_discs
+    except Exception as e:
+        print('Error', e.message)
+        return []
 
 if __name__ == '__main__':
     img = cv2.imread('capture.png')
