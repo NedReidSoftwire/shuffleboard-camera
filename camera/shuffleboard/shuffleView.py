@@ -30,10 +30,8 @@ def __get_transformed_image(img, corners):
 
     return transformed_img
 
-def __get_discs_by_colour(img, colour):
-    assert len(img.shape) == 3 and img.shape[2] == 3, "Provided image must have 3 bands."
-
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+def __get_discs_by_colour(img_hsv, colour):
+    assert len(img_hsv.shape) == 3 and img_hsv.shape[2] == 3, "Provided image must have 3 bands."
 
     if colour == DiscColour.RED:
         detections = __get_red_objects(img_hsv)
@@ -45,6 +43,9 @@ def __get_discs_by_colour(img, colour):
         raise Exception("Unsupported disc colour.")
 
     blurred = cv2.GaussianBlur(detections, (9, 9), 2)
+    if DEBUG:
+        cv2.imwrite(f'debug_blurred_{colour.value}.png', blurred)
+
     edges = cv2.Canny(blurred, 50, 150)
 
     # https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
@@ -63,7 +64,7 @@ def __get_discs_by_colour(img, colour):
         return []
 
     if DEBUG:
-        debug_img = img.copy()
+        debug_img = img_hsv.copy()
 
     circles = np.uint16(np.around(circles))
 
@@ -77,7 +78,7 @@ def __get_discs_by_colour(img, colour):
 
         if DEBUG:
             center = (x, y)
-            cv2.circle(debug_img, center, radius, colour_rgb, 2)
+            cv2.circle(debug_img, center, radius, colour_rgb, 4)
             cv2.circle(debug_img, center, 8, colour_rgb, -1)
     
     if DEBUG:
@@ -116,12 +117,14 @@ def __get_binary_thresholded_img(img_hsv):
 
     return img_thresholded
 
-def get_disc_coordinates(img):
+def get_discs(img):
     try:
         img_transformed = __get_transformed_image(img, board_corners)
 
-        red_discs = __get_discs_by_colour(img_transformed, DiscColour.RED)
-        blue_discs = __get_discs_by_colour(img_transformed, DiscColour.BLUE)
+        img_transformed_hsv = cv2.cvtColor(img_transformed, cv2.COLOR_BGR2HSV)
+
+        red_discs = __get_discs_by_colour(img_transformed_hsv, DiscColour.RED)
+        blue_discs = __get_discs_by_colour(img_transformed_hsv, DiscColour.BLUE)
 
         all_discs = red_discs + blue_discs
 
@@ -132,11 +135,11 @@ def get_disc_coordinates(img):
 
         return all_discs
     except Exception as e:
-        print('Error', e)
+        print(f"An error occurred while getting the discs: {e}")
         return []
 
 if __name__ == '__main__':
     img = cv2.imread('capture.png')
 
-    coords = get_disc_coordinates(img)
+    coords = get_discs(img)
     print('coords:', coords)

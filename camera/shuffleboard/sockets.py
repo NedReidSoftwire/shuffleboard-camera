@@ -1,7 +1,7 @@
 import socketio
 import asyncio
 from photo import takePhoto
-from shuffleView import get_disc_coordinates
+from shuffleView import get_discs
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
@@ -13,12 +13,12 @@ async def send_state_periodically():
         print("Connected to server")
         while True:
             img = takePhoto()
-            gameState = get_disc_coordinates(img)
-            gameStateJson = [disc.to_json() for disc in gameState]
+            game_state = get_discs(img)
+            game_state_json = [disc.to_json() for disc in game_state]
             
-            await sio.emit("send-state", gameStateJson)
+            await sio.emit("send-state", game_state_json)
         
-            await asyncio.sleep(0.02)  # Wait for 5 seconds before sending again
+            await asyncio.sleep(0.02)
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
@@ -27,5 +27,3 @@ async def send_state_periodically():
 
 if __name__ == "__main__":
     asyncio.run(send_state_periodically())
-
-
