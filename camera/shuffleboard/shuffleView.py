@@ -65,7 +65,7 @@ def __get_discs(img, colour):
             cv2.circle(debug_img, center, radius, colour_rgb, 2)
             cv2.circle(debug_img, center, 8, colour_rgb, -1)
         
-        cv2.imwrite(f'debug_detections_{colour.value}.png', debug_img)
+        # cv2.imwrite(f'debug_detections_{colour.value}.png', debug_img)
 
         return discs
     else:
@@ -107,26 +107,26 @@ def __get_binary_thresholded_img(img_hsv):
 def get_disc_coordinates(img):
     try:
         transformed_image = __get_transformed_image(img, board_corners)
-        cv2.imwrite('transformed_image.png', transformed_image)
+        # cv2.imwrite('transformed_image.png', transformed_image)
 
         red_discs = __get_discs(transformed_image, DiscColour.RED)
         blue_discs = __get_discs(transformed_image, DiscColour.BLUE)
 
-        print('Detections:', len(red_discs), 'red', len(blue_discs), 'blue')
+        # print('Detections:', len(red_discs), 'red', len(blue_discs), 'blue')
 
         all_discs = red_discs + blue_discs
-        print('all_discs', all_discs)
+        # print('all_discs', all_discs)
 
         if len(all_discs) == 0:
             raise Exception("No discs detected")
 
         return all_discs
     except Exception as e:
-        print('Error', e)
+        # print('Error', e)
         return []
 
 if __name__ == '__main__':
     img = cv2.imread('capture.png')
 
     coords = get_disc_coordinates(img)
-    print('coords', coords)
+    # print('coords', coords)
