@@ -8,7 +8,7 @@ import {Disc, ShortCircuitState, TeamColour} from "../../../types/types.ts";
 import {BOARD_DIMENSIONS, DISC_DIAMETER} from "../../../constants/constants.ts";
 
 const BOARD_MODEL_LENGTH = 2.25
-const BOARD_MODEL_HEIGHT = 0.7
+const BOARD_MODEL_HEIGHT = 1.4
 const DISC_MODEL_DIAMETER= 0.7
 const GLOBAL_SCALE = 0.1
 
@@ -26,7 +26,7 @@ const discPos= (disc: Disc): [x: number, y: number, z: number]  => [disc.x, 0, d
 
 const FixedCamera = () => {
   useThree(({ camera }) => {
-    camera.position.set(20, 100, 0);
+    camera.position.set(20, 75, 0);
     camera.lookAt(50, 0, 0)
     // camera.position.set(140, 100, 40);
     // camera.lookAt(140, 0, 40);
