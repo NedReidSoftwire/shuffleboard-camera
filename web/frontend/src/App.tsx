@@ -36,7 +36,7 @@ function App() {
                 <div className="col-span-3 bg-blue-600 h-full p-4">
                     <div className="text-lg font-semibold text-white">Blue Distance:</div>
                     <div
-                        className="text-4xl font-semibold text-white">{shortCircuit?.blueDistance?.distance ?? "😢"}</div>
+                        className="text-4xl font-semibold text-white">{shortCircuit.blueDistance?.distance? Math.round(shortCircuit?.blueDistance?.distance) : "😢"}</div>
                 </div>
                 <div className="col-span-6 bg-purple-300 h-full text-center">
                     <div className="text-lg font-semibold text-white">current winner:</div>
@@ -44,9 +44,9 @@ function App() {
 
                 </div>
                 <div className="col-span-3 bg-red-500 h-full p-4 text-right">
-                <div className="text-lg font-semibold text-white">Blue Distance:</div>
+                <div className="text-lg font-semibold text-white">Red Distance:</div>
                     <div
-                        className="text-4xl font-semibold text-white">{shortCircuit?.blueDistance?.distance ?? "😢"}</div>
+                        className="text-4xl font-semibold text-white">{shortCircuit.redDistance?.distance? Math.round(shortCircuit?.redDistance?.distance) : "😢"}</div>
 
                 </div>
             </div>
