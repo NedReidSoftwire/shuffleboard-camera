@@ -26,16 +26,23 @@ export const createSocket = (server: HttpServer) => {
     })
 
     socket.on("send-state",
-        (newDiscs: Disc[]) => sendState(newDiscs, socket)
+        (newDiscJson: string[]) => sendState(newDiscJson, io)
     )
   });
 };
 
-function sendState(newDiscs: Disc[], socket: Socket) {
-  console.log("hi")
-  updateShortCircuitGameState(newDiscs)
-  console.log(discState)
-  socket.emit("short-circuit", discState)
+function sendState(newDiscsJson: string[], io: Server) {
+  console.log(newDiscsJson)
+  try {
+    console.log("hi")
+    const newDiscs = newDiscsJson.map((jsonString) => JSON.parse(jsonString))
+    updateShortCircuitGameState(newDiscs)
+    console.log(discState)
+    io.emit("short-circuit", discState)
+  }
+  catch (e) {
+    console.log(e)
+  }
 }
 
 const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {

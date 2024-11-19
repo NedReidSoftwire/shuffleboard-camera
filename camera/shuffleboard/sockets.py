@@ -15,6 +15,7 @@ async def send_state_periodically():
             img = takePhoto()
             gameState = get_disc_coordinates(img)
             gameStateJson = [disc.to_json() for disc in gameState]
+            print(gameStateJson)
             await sio.emit("send-state", gameStateJson)
             print("Game state sent")
             await asyncio.sleep(5)  # Wait for 5 seconds before sending again
