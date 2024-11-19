@@ -59,7 +59,7 @@ const BoardView = ({ discs }: BoardViewProps) => {
       <Canvas>
         <FixedCamera />
         <Suspense fallback={null}>
-          {gameWorldDiscs.map((disc, index) => (
+          {gameWorldDiscs.map((disc) => (
               <primitive object={disc.colour === TeamColour.RED? redDisc.clone(): blueDisc.clone()} position={discPos(disc)} scale={6.8}/>
           ))}
           <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
