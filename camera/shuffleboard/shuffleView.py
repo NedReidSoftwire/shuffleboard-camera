@@ -64,7 +64,7 @@ def __get_discs(img, colour):
 
         discs = []
         for x, y, radius in circles[0, :]:
-            discs.append(Disc(x=x.item(), y=y.item(), colour=colour))
+            discs.append(Disc(x=x.item(), y=surface_size[1]-y.item(), colour=colour))
 
             center = (x, y)
             cv2.circle(debug_img, center, radius, colour_rgb, 2)
