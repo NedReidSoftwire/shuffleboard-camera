@@ -20,7 +20,7 @@ class Disc:
   colour: DiscColour
 
 surface_size = (400, 1200)
-board_corners = np.array([[412, 698], [434, 321], [1575, 293], [1623, 627]], dtype=np.float32) # BL, TL, TR, BR
+board_corners = np.array([[389, 677], [401, 286], [1556, 241], [1607, 627]], dtype=np.float32) # BL, TL, TR, BR
 
 def __get_transformed_image(img, corners):
     new_corners = np.array([[0, 0], [surface_size[0], 0], surface_size, [0, surface_size[1]]], dtype=np.float32)
