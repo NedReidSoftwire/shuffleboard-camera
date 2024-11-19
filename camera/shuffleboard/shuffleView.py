@@ -17,7 +17,7 @@ class Disc:
 surface_size = (400, 1200)
 board_corners = np.array([[412, 698], [434, 321], [1575, 293], [1623, 627]], dtype=np.float32) # BL, TL, TR, BR
 
-def __get_transformed_image(corners):
+def __get_transformed_image(img, corners):
     new_corners = np.array([[0, 0], [surface_size[0], 0], surface_size, [0, surface_size[1]]], dtype=np.float32)
 
     T = cv2.getPerspectiveTransform(corners, new_corners)
@@ -25,21 +25,21 @@ def __get_transformed_image(corners):
 
     return pers_image
 
-def __get_discs(img):
-    red = __get_red_objects(img)
-    cv2.imwrite('red.png', red)
-    blue = __get_blue_objects(img)
-    cv2.imwrite('blue.png', blue)
+def __get_discs(img, colour):
+    if colour == DiscColour.RED:
+        detections = __get_red_objects(img)
+        cv2.imwrite('red.png', detections)
+    elif colour == DiscColour.BLUE:
+        detections = __get_blue_objects(img)
+        cv2.imwrite('blue.png', detections)
+    else:
+        raise Exception("Unsupported disc colour.")
 
-    # TODO: Integrate colour with the below work
-    # TODO: Can we run Canny or findContours on the coloured versions?
-
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (9, 9), 2)
+    blurred = cv2.GaussianBlur(detections, (9, 9), 2)
     edges = cv2.Canny(blurred, 50, 150)
 
     # cv2.imwrite('gray.png', gray)
-    # cv2.imwrite('blurred.png', blurred)
+    cv2.imwrite('blurred.png', blurred)
 
     # https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
     circles = cv2.HoughCircles(
@@ -59,7 +59,7 @@ def __get_discs(img):
 
         discs = []
         for x, y, radius in circles[0, :]:
-            discs.append(Disc(x=x.item(), y=y.item(), colour=DiscColour.BLUE)) # TODO: Support colour identification
+            discs.append(Disc(x=x.item(), y=y.item(), colour=colour))
 
             center = (x, y)
             cv2.circle(debug_img, center, radius, (0, 255, 0), 2)
@@ -107,13 +107,16 @@ def __get_binary_thresholded_img(img_hsv):
     return detections
 
 def get_disc_coordinates(img):
-    transformed_image = __get_transformed_image(board_corners)
+    transformed_image = __get_transformed_image(img, board_corners)
     cv2.imwrite('transformed_image.png', transformed_image)
 
-    discs = __get_discs(transformed_image)
-    print('discs', discs)
+    red_discs = __get_discs(transformed_image, DiscColour.RED)
+    blue_discs = __get_discs(transformed_image, DiscColour.BLUE)
 
-    return discs
+    all_discs = red_discs + blue_discs
+    print('all_discs', all_discs)
+
+    return all_discs
 
 if __name__ == '__main__':
     img = cv2.imread('capture.png')
