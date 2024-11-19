@@ -9,6 +9,8 @@ function App() {
   });
 
   const testDiscs: Disc[] = [
+      {x: 28, y: 600, colour: TeamColour.BLUE},
+      {x: 28 + 56, y: 600, colour: TeamColour.BLUE},
       {x: 400, y: 1200, colour: TeamColour.BLUE},
       {x: 0, y: 0, colour: TeamColour.RED},
   ]

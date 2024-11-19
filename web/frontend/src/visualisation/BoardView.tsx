@@ -9,16 +9,16 @@ import {BOARD_DIMENSIONS, DISC_DIAMETER} from "../../../constants/constants.ts";
 
 const BOARD_MODEL_LENGTH = 2.25
 const BOARD_MODEL_HEIGHT = 0.7
-const DISC_MODEL_DIAMETER= 1.6
+const DISC_MODEL_DIAMETER= 0.7
 const GLOBAL_SCALE = 0.1
 
-const boardScale = [BOARD_DIMENSIONS.x * GLOBAL_SCALE / BOARD_MODEL_HEIGHT, BOARD_DIMENSIONS.x * GLOBAL_SCALE / BOARD_MODEL_HEIGHT, BOARD_DIMENSIONS.y * GLOBAL_SCALE / BOARD_MODEL_LENGTH ]
+const boardScale = [BOARD_DIMENSIONS.y * GLOBAL_SCALE / BOARD_MODEL_LENGTH, BOARD_DIMENSIONS.y * GLOBAL_SCALE / BOARD_MODEL_LENGTH, BOARD_DIMENSIONS.x * GLOBAL_SCALE / BOARD_MODEL_HEIGHT ]
 const discScale = DISC_DIAMETER * GLOBAL_SCALE / DISC_MODEL_DIAMETER
 
 const realToGameWorldMapping = (disc: Disc): Disc => {
   return {
     colour: disc.colour,
-    y: (disc.x - BOARD_DIMENSIONS.x / 2) * GLOBAL_SCALE,
+    y: ((BOARD_DIMENSIONS.x / 2 - disc.x) * 2) * GLOBAL_SCALE,
     x: (BOARD_DIMENSIONS.y - disc.y) * GLOBAL_SCALE
   }
 }
@@ -26,10 +26,10 @@ const discPos = (disc: Disc) => [disc.x, 0, disc.y]
 
 const FixedCamera = () => {
   useThree(({ camera }) => {
-    // camera.position.set(0, 12, -12);
-    // camera.lookAt(0, 0, -2)
-    camera.position.set(22, 200, 7);
-    camera.lookAt(22, 0, 7);
+    camera.position.set(20, 100, 0);
+    camera.lookAt(50, 0, 0)
+    // camera.position.set(140, 100, 40);
+    // camera.lookAt(140, 0, 40);
   });
   return null;
 };
@@ -60,7 +60,7 @@ const BoardView = ({ discs }: BoardViewProps) => {
         <FixedCamera />
         <Suspense fallback={null}>
           {gameWorldDiscs.map((disc, index) => (
-              <primitive object={disc.colour === TeamColour.RED? redDisc.clone(): blueDisc.clone()} position={discPos(disc)} scale={discScale}/>
+              <primitive object={disc.colour === TeamColour.RED? redDisc.clone(): blueDisc.clone()} position={discPos(disc)} scale={6.8}/>
           ))}
           <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
 
