@@ -126,7 +126,7 @@ def get_disc_coordinates(img):
 
         return all_discs
     except Exception as e:
-        print('Error', e.message)
+        print('Error', e)
         return []
 
 if __name__ == '__main__':
