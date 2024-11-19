@@ -3,7 +3,7 @@ import cv2
 cam_port = 0
 cam = cv2.VideoCapture(cam_port) 
 
-def takePhoto(): 
+def take_photo(): 
     result, image = cam.read()
     if result: 
         # cv2.imwrite('capture.png', image)
@@ -11,4 +11,5 @@ def takePhoto():
     else: 
         print('Failed to read from camera')
 
-takePhoto()
+if __name__ == '__main__':
+    take_photo()

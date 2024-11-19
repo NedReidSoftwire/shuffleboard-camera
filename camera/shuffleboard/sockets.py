@@ -1,9 +1,7 @@
 import socketio
 import asyncio
-from photo import takePhoto
+from photo import take_photo
 from shuffleView import get_discs
-from dataclasses import dataclass
-from dataclasses_json import dataclass_json
 
 sio = socketio.AsyncClient()
 
@@ -12,7 +10,7 @@ async def send_state_periodically():
         await sio.connect("http://localhost:3000")
         print("Connected to server")
         while True:
-            img = takePhoto()
+            img = take_photo()
             game_state = get_discs(img)
             game_state_json = [disc.to_json() for disc in game_state]
             
