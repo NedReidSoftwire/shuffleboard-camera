@@ -26,6 +26,14 @@ def __get_transformed_image(corners):
     return pers_image
 
 def __get_discs(img):
+    red = __get_red_objects(img)
+    cv2.imwrite('red.png', red)
+    blue = __get_blue_objects(img)
+    cv2.imwrite('blue.png', blue)
+
+    # TODO: Integrate colour with the below work
+    # TODO: Can we run Canny or findContours on the coloured versions?
+
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (9, 9), 2)
     edges = cv2.Canny(blurred, 50, 150)
@@ -63,23 +71,40 @@ def __get_discs(img):
     else:
         raise Exception("No circles detected in the image")
 
-    # countours, hierachy = cv2.findContours(redMask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+def __get_red_objects(img):
+    hsvImage = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # if len(countours) > 0:
-    #     for countour in countours:
-    #         # if cv2.contourArea(countour) > 100:
-    #         x, y, w, h = cv2.boundingRect(countour)
-    #         cv2.rectangle(persImage, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    # colour map: https://i.sstatic.net/gyuw4.png
+    redLower = np.array([160, 150, 20])
+    redUpper = np.array([180, 255, 255])
+    redLower2 = np.array([0, 150, 20])
+    redUpper2 = np.array([20, 255, 255])
 
-    # invRedMask = cv2.bitwise_not(redMask)
-    # countours, hierachy = cv2.findContours(invRedMask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    # if len(countours) > 0:
-    #     for countour in countours:
-    #         # if cv2.contourArea(countour) > 20 and cv2.contourArea(countour) < 120:
-    #         x, y, w, h = cv2.boundingRect(countour)
-    #         cv2.circle(persImage, (int(x + w/2), int(y + h/2)), int(h/2), (255, 0, 0), 5)
+    redMask1 = cv2.inRange(hsvImage, redLower, redUpper)
+    redMask2 = cv2.inRange(hsvImage, redLower2, redUpper2)
+    redMask = cv2.bitwise_or(redMask1, redMask2)
+    red_objects = cv2.bitwise_and(img, img, mask=redMask)
 
-    # finalIm = cv2.cvtColor(hsvImage, cv2.COLOR_HSV2BGR)
+    return __get_binary_thresholded_img(red_objects)
+
+def __get_blue_objects(img):
+    hsvImage = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    blueLower = np.array([100, 140, 5])
+    blueUpper = np.array([130, 255, 255])
+
+    print(blueLower, blueUpper)
+
+    blueMask = cv2.inRange(hsvImage, blueLower, blueUpper)
+    blue_objects = cv2.bitwise_and(img, img, mask=blueMask)
+
+    return __get_binary_thresholded_img(blue_objects)
+
+def __get_binary_thresholded_img(img_hsv):
+    greyscale = cv2.split(img_hsv)[2]
+    _, detections = cv2.threshold(greyscale, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+    return detections
 
 def get_disc_coordinates(img):
     transformed_image = __get_transformed_image(board_corners)
