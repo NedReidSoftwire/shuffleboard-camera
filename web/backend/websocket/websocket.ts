@@ -1,6 +1,7 @@
 import {Server} from "socket.io";
 import {Server as HttpServer} from "http";
 import {Disc, DiscWithIndex, Distance, ShortCircuitGameState, TeamColour} from "../../types/types";
+import {DISC_DIAMETER} from "../../constants/constants"
 
 const discState: ShortCircuitGameState = {
   discs: [],
@@ -44,7 +45,7 @@ function sendState(newDiscsJson: string[], io: Server) {
 }
 
 const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
-  return Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2))
+  return Math.max(Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2)) - DISC_DIAMETER, 0)
 }
 
 const calculateDistance = (discs: DiscWithIndex[])  => {
