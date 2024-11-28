@@ -38,7 +38,6 @@ function App() {
       socket.emit("request-calibration-image")
   }
 
-
   return (
     <div className="w-full">
       <div className="font-bold text-4xl p-4 text-center">
