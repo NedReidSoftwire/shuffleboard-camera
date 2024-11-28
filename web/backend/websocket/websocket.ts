@@ -70,6 +70,9 @@ function calculateAverageDiscStates(): Disc[] {
         colour: disc.colour
       }
     }, disc)
+    if (!correspondingDiscs.length) {
+      return disc
+    }
     return {
       x: sumOfDiscs.x / (correspondingDiscs.length+1),
       y: sumOfDiscs.y / (correspondingDiscs.length+1),
@@ -87,7 +90,7 @@ function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[]): 
     return null
   }
   const minDistance = Math.min(...distances)
-  if (minDistance > 56) {
+  if (minDistance > 9) {
     return null
   }
   const minIndex = distances.indexOf(minDistance)
