@@ -49,7 +49,6 @@ export const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
   return Math.max(distBetweenTwoDiscCenters(disc1, disc2) - DISC_DIAMETER, 0)
 }
 
-
 function sendState(newDiscsJson: string[], io: Server) {
   try {
     const newDiscs: Disc[] = newDiscsJson.map((jsonString) => JSON.parse(jsonString))
