@@ -59,9 +59,13 @@ function updateLast5DiscStates(newDiscs: Disc[]) {
 function calculateAverageDiscStates(): Disc[] {
   const mostRecentDiscPositions = last5DiscStates[last5DiscStates.length - 1]
   return mostRecentDiscPositions.map((disc) => {
+    const correspondingDiscInAverage = mapDiscInPreviousDiscPositions(disc, discState.discs, 5)
+    if (correspondingDiscInAverage) {
+      return correspondingDiscInAverage
+    }
     const correspondingDiscs = last5DiscStates
         .slice(0,last5DiscStates.length - 1)
-        .map((discPositions: Disc[]) => mapDiscInPreviousDiscPositions(disc, discPositions))
+        .map((discPositions: Disc[]) => mapDiscInPreviousDiscPositions(disc, discPositions, 20))
         .filter(d => !!d)
     const sumOfDiscs = correspondingDiscs.reduce((total: Disc, disc: Disc) => {
       return {
@@ -81,7 +85,7 @@ function calculateAverageDiscStates(): Disc[] {
   })
 }
 
-function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[]): Disc | null {
+function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[], threshold: number): Disc | null {
   const prevDiscStatesOfSameColour = previousDiscState
       .filter((prevDisc) => prevDisc.colour === disc.colour)
   const distances = prevDiscStatesOfSameColour
@@ -90,7 +94,7 @@ function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[]): 
     return null
   }
   const minDistance = Math.min(...distances)
-  if (minDistance > 9) {
+  if (minDistance > threshold) {
     return null
   }
   const minIndex = distances.indexOf(minDistance)
