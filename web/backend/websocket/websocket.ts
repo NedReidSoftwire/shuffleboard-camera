@@ -41,8 +41,12 @@ export const createSocket = (server: HttpServer) => {
   });
 };
 
+const distBetweenTwoDiscCenters = (disc1: Disc, disc2: Disc) => {
+  return Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2))
+}
+
 const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
-  return Math.max(Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2)) - DISC_DIAMETER, 0)
+  return Math.max(distBetweenTwoDiscCenters(disc1, disc2) - DISC_DIAMETER, 0)
 }
 
 function updateLast5DiscStates(newDiscs: Disc[]) {
