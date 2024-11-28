@@ -1,28 +1,42 @@
 import BoardView from "./visualisation/BoardView.tsx";
 import { io } from "socket.io-client";
-import {useEffect, useState} from "react";
-import {Disc, ShortCircuitGameState, ShortCircuitState, TeamColour} from "../../types/types.ts";
+import {useEffect, useMemo, useState} from "react";
+import {Disc, ShortCircuitGameState, ShortCircuitState} from "../../types/types.ts";
+import Calibrate from "./calibration/Calibrate.tsx";
 
 function App() {
-  const socket = io({
+    const socket = useMemo(() => io({
     autoConnect: false,
-  });
+  }), []);
 
   const [testDiscs, setTestDiscs] = useState([] as Disc[])
   const [shortCircuit, setShortCircuit] = useState<ShortCircuitState>()
+  const [calibrationImage, setCalibrationImage] = useState<string>()
+    const calibrating = !!calibrationImage
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
       socket.connect()
       socket.on("connect", () => {
           socket.emit('frontend-connect');
           //socket.emit('send-state', testDiscs);// true
       });
+      // socket.onAny((eventName, ...args) => {
+      //     console.log(eventName)
+      // })
       socket.on("short-circuit", (gameState: ShortCircuitGameState) => {
           setTestDiscs(gameState.discs)
           setShortCircuit(gameState.shortCircuit)
       })
+      socket.on("calibration-image", (calibrationImageData: string) => {
+          console.log("calibrationImage", calibrationImageData)
+          setCalibrationImage(calibrationImageData)
+      })
   }, []);
+
+  const calibrate = () => {
+      console.log("getting cal")
+      socket.emit("request-calibration-image")
+  }
 
 
   return (
@@ -30,6 +44,9 @@ function App() {
       <div className="font-bold text-4xl p-4 text-center">
         Shuffleboard Camera
       </div>
+        {calibrating?
+        <Calibrate image={calibrationImage} /> : (
+            <>
       <BoardView discs={testDiscs} shortCircuit={shortCircuit} />
         {shortCircuit && (
             <div className="w-full grid grid-cols-12 h-32 bg-purple-500 border-t-8 border-amber-200">
@@ -51,6 +68,10 @@ function App() {
                 </div>
             </div>
         )}
+        <button className="w-full bg-purple-600 text-white hover:bg-purple-800 text-2xl p-4 text-center"
+        onClick={calibrate}>Calibrate</button>
+      </>
+)}
     </div>
   );
 }

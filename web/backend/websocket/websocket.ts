@@ -24,13 +24,20 @@ export const createSocket = (server: HttpServer) => {
       console.log("user disconnected");
     });
 
-    socket.on("frontend-connect", () => {
-      console.log("FRONTEND CONNECTED")
-    })
-
     socket.on("send-state",
         (newDiscJson: string[]) => sendState(newDiscJson, io)
     )
+
+    socket.on("request-calibration-image",
+        () => {
+          console.log("getting calibration image");
+
+          io.emit("get-calibration-image");
+        }
+    )
+
+    socket.on("send-calibration-image",
+        (calibrationData: string) => io.emit('calibration-image', calibrationData))
   });
 };
 
