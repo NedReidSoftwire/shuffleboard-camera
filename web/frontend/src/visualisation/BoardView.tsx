@@ -9,7 +9,7 @@ import {BOARD_DIMENSIONS, DISC_DIAMETER} from "../../../constants/constants.ts";
 
 const BOARD_MODEL_LENGTH = 2.25
 const BOARD_MODEL_HEIGHT = 1.4
-const DISC_MODEL_DIAMETER= 0.7
+const DISC_MODEL_DIAMETER= 1.6
 const GLOBAL_SCALE = 0.1
 
 const boardScale = [BOARD_DIMENSIONS.y * GLOBAL_SCALE / BOARD_MODEL_LENGTH, BOARD_DIMENSIONS.y * GLOBAL_SCALE / BOARD_MODEL_LENGTH, BOARD_DIMENSIONS.x * GLOBAL_SCALE / BOARD_MODEL_HEIGHT ]
@@ -18,7 +18,7 @@ const discScale = DISC_DIAMETER * GLOBAL_SCALE / DISC_MODEL_DIAMETER
 const realToGameWorldMapping = (disc: Disc): Disc => {
   return {
     colour: disc.colour,
-    y: ((BOARD_DIMENSIONS.x / 2 - disc.x) * 2) * GLOBAL_SCALE,
+    y: ((BOARD_DIMENSIONS.x / 2 - disc.x)) * GLOBAL_SCALE,
     x: (BOARD_DIMENSIONS.y - disc.y) * GLOBAL_SCALE
   }
 }
@@ -56,26 +56,26 @@ const BoardView = ({ discs, shortCircuit }: BoardViewProps) => {
   const gameWorldDiscs = discs.map(realToGameWorldMapping)
 
   return (
-    <div className="h-96 w-[144]">
-      <Canvas>
-        <FixedCamera />
-        <Suspense fallback={null}>
-          {gameWorldDiscs.map((disc) => (
-              <primitive object={disc.colour === TeamColour.RED? redDisc.clone(): blueDisc.clone()} position={discPos(disc)} scale={6.8}/>
-          ))}
-          <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
-          {shortCircuit && shortCircuit.redDistance && (
-            <Line points={[discPos(gameWorldDiscs[shortCircuit.redDistance.disc1]), discPos(gameWorldDiscs[shortCircuit.redDistance.disc2])]} color={'red'} linewidth={15} />
-          )}
-          {shortCircuit && shortCircuit.blueDistance && (
-            <Line points={[discPos(gameWorldDiscs[shortCircuit.blueDistance.disc1]), discPos(gameWorldDiscs[shortCircuit.blueDistance.disc2])]} color={'blue'} linewidth={15} />
-          )}
-          <Environment files="/textures/sky.exr" background />
-          <ambientLight intensity={0.5} />
-          <directionalLight intensity={1} />
-        </Suspense>
-      </Canvas>
-    </div>
+      <div className="h-96 w-[144]">
+        <Canvas>
+          <FixedCamera />
+          <Suspense fallback={null}>
+            {gameWorldDiscs.map((disc) => (
+                <primitive object={disc.colour === TeamColour.RED? redDisc.clone(): blueDisc.clone()} position={discPos(disc)} scale={discScale}/>
+            ))}
+            <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
+            {shortCircuit && shortCircuit.redDistance && (
+                <Line points={[discPos(gameWorldDiscs[shortCircuit.redDistance.disc1]), discPos(gameWorldDiscs[shortCircuit.redDistance.disc2])]} color={'red'} linewidth={15} />
+            )}
+            {shortCircuit && shortCircuit.blueDistance && (
+                <Line points={[discPos(gameWorldDiscs[shortCircuit.blueDistance.disc1]), discPos(gameWorldDiscs[shortCircuit.blueDistance.disc2])]} color={'blue'} linewidth={15} />
+            )}
+            <Environment files="/textures/sky.exr" background />
+            <ambientLight intensity={0.5} />
+            <directionalLight intensity={1} />
+          </Suspense>
+        </Canvas>
+      </div>
   );
 };
 

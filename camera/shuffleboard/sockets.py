@@ -20,7 +20,7 @@ async def send_state_periodically():
             
             await sio.emit("send-state", game_state_json)
         
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.03)
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
