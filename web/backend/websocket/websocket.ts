@@ -40,7 +40,9 @@ const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
 
 function updateLast5DiscStates(newDiscs: Disc[]) {
   last5DiscStates.push(newDiscs)
-  last5DiscStates.splice(1)
+  if (last5DiscStates.length > 5) {
+    last5DiscStates.shift()
+  }
 }
 
 function calculateAverageDiscStates(): Disc[] {
@@ -50,7 +52,6 @@ function calculateAverageDiscStates(): Disc[] {
         .slice(0,last5DiscStates.length - 1)
         .map((discPositions: Disc[]) => mapDiscInPreviousDiscPositions(disc, discPositions))
         .filter(d => !!d)
-    console.log("aaa", correspondingDiscs)
     const sumOfDiscs = correspondingDiscs.reduce((total: Disc, disc: Disc) => {
       return {
         x: disc.x + total.x,
@@ -75,7 +76,6 @@ function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[]): 
     return null
   }
   const minDistance = Math.min(...distances)
-  console.log("a", minDistance)
   if (minDistance > 56) {
     return null
   }
@@ -88,7 +88,7 @@ function sendState(newDiscsJson: string[], io: Server) {
     const newDiscs: Disc[] = newDiscsJson.map((jsonString) => JSON.parse(jsonString))
     updateLast5DiscStates(newDiscs)
     discState.discs = calculateAverageDiscStates()
-    updateShortCircuitGameState(newDiscs)
+    updateShortCircuitGameState()
     io.emit("short-circuit", discState)
   }
   catch (e) {
@@ -138,12 +138,11 @@ const calculateWinner = (blueDistance: Distance | undefined, redDistance: Distan
   return TeamColour.RED
 }
 
-function updateShortCircuitGameState(newDiscs: Disc[]): ShortCircuitGameState {
-  discState.discs = newDiscs
-  const redDiscs = newDiscs
+function updateShortCircuitGameState(): ShortCircuitGameState {
+  const redDiscs = discState.discs
       .map((disc, index): DiscWithIndex => ({...disc, index}))
       .filter((disc) => disc.colour === TeamColour.RED)
-  const blueDiscs = newDiscs
+  const blueDiscs = discState.discs
       .map((disc, index): DiscWithIndex => ({...disc, index}))
       .filter((disc) => disc.colour === TeamColour.BLUE)
   const blueDistance = calculateDistance(blueDiscs)
