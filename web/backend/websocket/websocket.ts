@@ -12,6 +12,12 @@ const discState: ShortCircuitGameState = {
   }
 }
 
+const last5DiscStates: Disc[][] = [
+  [{x: 20, y: 20, colour: TeamColour.BLUE}, {x: 50, y: 70, colour: TeamColour.RED}, {x: 490, y: 510, colour: TeamColour.BLUE}],
+  [{x: 10, y: 9060, colour: TeamColour.BLUE}, {x: 50, y: 70, colour: TeamColour.RED}, {x: 480, y: 520, colour: TeamColour.BLUE}],
+  [{x: 10, y: 10, colour: TeamColour.BLUE}, {x: 50, y: 70, colour: TeamColour.RED}, {x: 500, y: 500, colour: TeamColour.BLUE}],
+]
+
 export const createSocket = (server: HttpServer) => {
   const io = new Server(server);
 
@@ -32,20 +38,69 @@ export const createSocket = (server: HttpServer) => {
   });
 };
 
+const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
+  return Math.max(Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2)) - DISC_DIAMETER, 0)
+}
+
+const kj = calculateAverageDiscStates()
+console.log(kj)
+
+function updateLast5DiscStates(newDiscs: Disc[]) {
+  last5DiscStates.push(newDiscs)
+  last5DiscStates.splice(1)
+}
+
+function calculateAverageDiscStates(): Disc[] {
+  const mostRecentDiscPositions = last5DiscStates[last5DiscStates.length - 1]
+  return mostRecentDiscPositions.map((disc) => {
+    const correspondingDiscs = last5DiscStates
+        .slice(0,last5DiscStates.length - 1)
+        .map((discPositions: Disc[]) => mapDiscInPreviousDiscPositions(disc, discPositions))
+        .filter(d => !!d)
+    console.log("aaa", correspondingDiscs)
+    const sumOfDiscs = correspondingDiscs.reduce((total: Disc, disc: Disc) => {
+      return {
+        x: disc.x + total.x,
+        y: disc.y + total.y,
+        colour: disc.colour
+      }
+    }, disc)
+    return {
+      x: sumOfDiscs.x / (correspondingDiscs.length+1),
+      y: sumOfDiscs.y / (correspondingDiscs.length+1),
+      colour: disc.colour
+    }
+  })
+}
+
+function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[]): Disc | null {
+  const prevDiscStatesOfSameColour = previousDiscState
+      .filter((prevDisc) => prevDisc.colour === disc.colour)
+  const distances = prevDiscStatesOfSameColour
+      .map((prevDisc) => distBetweenTwoDiscs(disc, prevDisc))
+  if (!distances.length) {
+    return null
+  }
+  const minDistance = Math.min(...distances)
+  console.log("a", minDistance)
+  if (minDistance > 56) {
+    return null
+  }
+  const minIndex = distances.indexOf(minDistance)
+  return prevDiscStatesOfSameColour[minIndex]
+}
+
 function sendState(newDiscsJson: string[], io: Server) {
   try {
     const newDiscs: Disc[] = newDiscsJson.map((jsonString) => JSON.parse(jsonString))
-
+    updateLast5DiscStates(newDiscs)
+    discState.discs = calculateAverageDiscStates()
     updateShortCircuitGameState(newDiscs)
     io.emit("short-circuit", discState)
   }
   catch (e) {
     console.log(e)
   }
-}
-
-const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
-  return Math.max(Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2)) - DISC_DIAMETER, 0)
 }
 
 const calculateDistance = (discs: DiscWithIndex[])  => {
