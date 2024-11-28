@@ -59,7 +59,7 @@ function updateLast5DiscStates(newDiscs: Disc[]) {
 function calculateAverageDiscStates(): Disc[] {
   const mostRecentDiscPositions = last5DiscStates[last5DiscStates.length - 1]
   return mostRecentDiscPositions.map((disc) => {
-    const correspondingDiscInAverage = mapDiscInPreviousDiscPositions(disc, discState.discs, 5)
+    const correspondingDiscInAverage = mapDiscInPreviousDiscPositions(disc, discState.discs, 3)
     if (correspondingDiscInAverage) {
       return correspondingDiscInAverage
     }
