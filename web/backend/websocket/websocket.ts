@@ -12,11 +12,7 @@ const discState: ShortCircuitGameState = {
   }
 }
 
-const last5DiscStates: Disc[][] = [
-  [{x: 20, y: 20, colour: TeamColour.BLUE}, {x: 50, y: 70, colour: TeamColour.RED}, {x: 490, y: 510, colour: TeamColour.BLUE}],
-  [{x: 10, y: 9060, colour: TeamColour.BLUE}, {x: 50, y: 70, colour: TeamColour.RED}, {x: 480, y: 520, colour: TeamColour.BLUE}],
-  [{x: 10, y: 10, colour: TeamColour.BLUE}, {x: 50, y: 70, colour: TeamColour.RED}, {x: 500, y: 500, colour: TeamColour.BLUE}],
-]
+const last5DiscStates: Disc[][] = []
 
 export const createSocket = (server: HttpServer) => {
   const io = new Server(server);
@@ -41,9 +37,6 @@ export const createSocket = (server: HttpServer) => {
 const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
   return Math.max(Math.sqrt(Math.pow(disc1.x - disc2.x, 2) + Math.pow(disc1.y - disc2.y, 2)) - DISC_DIAMETER, 0)
 }
-
-const kj = calculateAverageDiscStates()
-console.log(kj)
 
 function updateLast5DiscStates(newDiscs: Disc[]) {
   last5DiscStates.push(newDiscs)
