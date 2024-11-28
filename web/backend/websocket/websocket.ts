@@ -82,7 +82,7 @@ function mapDiscInPreviousDiscPositions(disc: Disc, previousDiscState: Disc[]): 
   const prevDiscStatesOfSameColour = previousDiscState
       .filter((prevDisc) => prevDisc.colour === disc.colour)
   const distances = prevDiscStatesOfSameColour
-      .map((prevDisc) => distBetweenTwoDiscs(disc, prevDisc))
+      .map((prevDisc) => distBetweenTwoDiscCenters(disc, prevDisc))
   if (!distances.length) {
     return null
   }
