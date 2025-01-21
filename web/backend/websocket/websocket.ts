@@ -1,6 +1,6 @@
 import {Server} from "socket.io";
 import {Server as HttpServer} from "http";
-import {Disc, ShortCircuitGameState} from "../../types/types";
+import {Coordinate, Disc, ShortCircuitGameState} from "../../types/types";
 import {DISC_DIAMETER} from "../../constants/constants"
 import {calculateAverageDiscStates, updateLastXDiscStates} from "./calculateDiscPosition";
 import {getShortCircuitState} from "./shortCircuit";
@@ -38,6 +38,8 @@ export const createSocket = (server: HttpServer) => {
 
     socket.on("send-calibration-image",
         (calibrationData: string) => io.emit('calibration-image', calibrationData))
+    socket.on("send-calibration-coordinates",
+        (calibrationData: Coordinate[]) => io.emit('update-calibration-coordinates', calibrationData))
   });
 };
 

@@ -19,7 +19,7 @@ export function updateLastXDiscStates(newDiscs: Disc[], x = 5) {
 export function calculateAverageDiscStates(previousAverageDiscState: Disc[]): Disc[] {
     const mostRecentDiscPositions = lastXDiscStates[lastXDiscStates.length - 1]
     return mostRecentDiscPositions.map((disc) => {
-        const correspondingDiscInAverage = mapDiscInPreviousDiscPositions(disc, previousAverageDiscState, 3)
+        const correspondingDiscInAverage = mapDiscInPreviousDiscPositions(disc, previousAverageDiscState, 5)
         if (correspondingDiscInAverage) {
             return correspondingDiscInAverage
         }

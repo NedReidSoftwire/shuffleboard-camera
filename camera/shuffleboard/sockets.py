@@ -6,16 +6,23 @@ from shuffleView import get_discs
 import base64
 
 sio = socketio.AsyncClient()
+board_coordinates = [[320, 569], [335, 170], [1520, 140], [1554, 539]]
 
 async def send_state_periodically():
+    global board_coordinates
     try:
+        def update_calibration_coordinates(coordinates):
+            global board_coordinates
+            board_coordinates = coordinates
+            print(coordinates)
         await sio.connect("http://localhost:3000")
         sio.on("get-calibration-image", send_calibration_image)
+        sio.on("update-calibration-coordinates", update_calibration_coordinates)
 
         print("Connected to server")
         while True:
             img = take_photo()
-            game_state = get_discs(img)
+            game_state = get_discs(img, board_coordinates)
             game_state_json = [disc.to_json() for disc in game_state]
             
             await sio.emit("send-state", game_state_json)

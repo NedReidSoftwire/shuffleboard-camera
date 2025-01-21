@@ -32,3 +32,5 @@ export type ShortCircuitState = {
 export type ShortCircuitGameState = GameState & {
     shortCircuit: ShortCircuitState
 }
+
+export type Coordinate = [number, number]

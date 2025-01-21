@@ -1,5 +1,5 @@
 import BoardView from "./visualisation/BoardView.tsx";
-import { io } from "socket.io-client";
+import {io} from "socket.io-client";
 import {useEffect, useMemo, useState} from "react";
 import {Disc, ShortCircuitGameState, ShortCircuitState} from "../../types/types.ts";
 import Calibrate from "./calibration/Calibrate.tsx";
@@ -44,7 +44,7 @@ function App() {
         Shuffleboard Camera
       </div>
         {calibrating?
-        <Calibrate image={calibrationImage} /> : (
+        <Calibrate image={calibrationImage} socket={socket} onComplete={() => setCalibrationImage(undefined)}/> : (
             <>
       <BoardView discs={testDiscs} shortCircuit={shortCircuit} />
         {shortCircuit && (
@@ -52,7 +52,7 @@ function App() {
                 <div className="col-span-3 bg-blue-600 h-full p-4">
                     <div className="text-lg font-semibold text-white">Blue Distance:</div>
                     <div
-                        className="text-4xl font-semibold text-white">{shortCircuit.blueDistance?.distance? Math.round(shortCircuit?.blueDistance?.distance / 10) + "cm" : "😢"}</div>
+                        className="text-4xl font-semibold text-white">{shortCircuit.blueDistance?.distance !== undefined? Math.round(shortCircuit?.blueDistance?.distance / 10) + "cm" : "😢"}</div>
                 </div>
                 <div className="col-span-6 bg-purple-300 h-full text-center">
                     <div className="text-lg font-semibold text-white">current winner:</div>
@@ -62,7 +62,7 @@ function App() {
                 <div className="col-span-3 bg-red-500 h-full p-4 text-right">
                 <div className="text-lg font-semibold text-white">Red Distance:</div>
                     <div
-                        className="text-4xl font-semibold text-white">{shortCircuit.redDistance?.distance? Math.round(shortCircuit?.redDistance?.distance / 10) + "cm" : "😢"}</div>
+                        className="text-4xl font-semibold text-white">{shortCircuit.redDistance?.distance !== undefined? Math.round(shortCircuit?.redDistance?.distance / 10) + "cm" : "😢"}</div>
 
                 </div>
             </div>
