@@ -1,3 +1,5 @@
+import { GAME_MODE } from "./game-modes"
+
 export enum TeamColour {
     BLUE = "Blue",
     RED = "Red"
@@ -15,6 +17,7 @@ export type SendStateBody = Disc[]
 
 export type GameState = {
     discs: Disc[]
+    gameMode?: GAME_MODE
 }
 
 export type Distance = {

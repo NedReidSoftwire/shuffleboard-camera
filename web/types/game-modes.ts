@@ -1,0 +1,4 @@
+export enum GAME_MODE {
+    SHORT_CIRCUIT = "SHORT_CIRCUIT",
+    ZONE_OF_CONTROL = "ZONE_OF_CONTROL",
+}
