@@ -7,6 +7,7 @@ import {
   ShortCircuitState,
 } from "../../types/types.ts";
 import Calibrate from "./calibration/Calibrate.tsx";
+import GameModeSelect from "./game-mode/GameModeSelect.tsx";
 
 function App() {
   const socket = useMemo(
@@ -14,7 +15,7 @@ function App() {
       io({
         autoConnect: false,
       }),
-    [],
+    []
   );
 
   const [testDiscs, setTestDiscs] = useState([] as Disc[]);
@@ -60,6 +61,7 @@ function App() {
         />
       ) : (
         <>
+          <GameModeSelect />
           <BoardView discs={testDiscs} shortCircuit={shortCircuit} />
           {shortCircuit && (
             <div className="w-full grid grid-cols-12 h-32 bg-purple-500 border-t-8 border-amber-200">

@@ -7,6 +7,7 @@ import {
   updateLastXDiscStates,
 } from "./calculateDiscPosition";
 import { getShortCircuitState } from "./shortCircuit";
+import { GameModeService } from "../services/game-mode-service";
 
 const discState: ShortCircuitGameState = {
   discs: [],
@@ -17,7 +18,7 @@ const discState: ShortCircuitGameState = {
   },
 };
 
-export const createSocket = (server: HttpServer) => {
+export const createSocket = (server: HttpServer, gameModeService: GameModeService) => {
   const io = new Server(server);
 
   io.on("connection", (socket) => {
@@ -28,7 +29,7 @@ export const createSocket = (server: HttpServer) => {
     });
 
     socket.on("send-state", (newDiscJson: string[]) =>
-      sendState(newDiscJson, io),
+      sendState(newDiscJson, io, gameModeService),
     );
 
     socket.on("request-calibration-image", () => {
@@ -56,12 +57,13 @@ export const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
   return Math.max(distBetweenTwoDiscCenters(disc1, disc2) - DISC_DIAMETER, 0);
 };
 
-function sendState(newDiscsJson: string[], io: Server) {
+function sendState(newDiscsJson: string[], io: Server, gameModeService: GameModeService) {
   try {
     const newDiscs: Disc[] = newDiscsJson.map((jsonString) =>
       JSON.parse(jsonString),
     );
     updateLastXDiscStates(newDiscs);
+    discState.gameMode = gameModeService.getGameMode();
     discState.discs = calculateAverageDiscStates(discState.discs);
     discState.shortCircuit = getShortCircuitState(discState.discs);
     io.emit("short-circuit", discState);
