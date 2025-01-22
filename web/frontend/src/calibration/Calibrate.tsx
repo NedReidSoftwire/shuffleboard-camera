@@ -1,5 +1,10 @@
 import { Circle, Image, Layer, Stage } from "react-konva";
-import { CAMERA_HEIGHT, CAMERA_WIDTH } from "../../../constants/constants.ts";
+import {
+  BOARD_DIMENSIONS,
+  CAMERA_HEIGHT,
+  CAMERA_WIDTH,
+  DISC_INNER_RADIUS,
+} from "../../../constants/constants.ts";
 import { useEffect, useRef, useState } from "react";
 import useImage from "use-image";
 import { Socket } from "socket.io-client";
@@ -9,6 +14,10 @@ type CalibrateProps = {
   image: string;
   socket: Socket;
   onComplete: () => void;
+};
+
+const pixelDistanceBetween = (a: Coordinate, b: Coordinate) => {
+  return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);
 };
 
 const clamp = (min: number, max: number, value: number) =>
@@ -39,10 +48,46 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   };
 
   const addCorner = () => {
-    const newCorners = [...corners, currentCorner];
+    const scaledCorner: Coordinate = [
+      (currentCorner[0] * CAMERA_WIDTH) / width,
+      (currentCorner[1] * CAMERA_HEIGHT) / height,
+    ];
+    const newCorners = [...corners, scaledCorner];
     setCurrentCorner([0, 0]);
     if (newCorners.length === 4) {
-      void submitCalibration(newCorners);
+      const discPaddingTop =
+        (pixelDistanceBetween(newCorners[1], newCorners[2]) *
+          DISC_INNER_RADIUS) /
+        BOARD_DIMENSIONS.y;
+      const discPaddingRight =
+        (pixelDistanceBetween(newCorners[2], newCorners[3]) *
+          DISC_INNER_RADIUS) /
+        BOARD_DIMENSIONS.x;
+      const discPaddingLeft =
+        (pixelDistanceBetween(newCorners[0], newCorners[1]) *
+          DISC_INNER_RADIUS) /
+        BOARD_DIMENSIONS.x;
+      const discPaddingBottom =
+        (pixelDistanceBetween(newCorners[0], newCorners[3]) *
+          DISC_INNER_RADIUS) /
+        BOARD_DIMENSIONS.y;
+
+      const paddedCorners: Coordinate[] = [
+        [
+          newCorners[0][0] + discPaddingLeft,
+          newCorners[0][1] + discPaddingBottom,
+        ],
+        [newCorners[1][0] + discPaddingLeft, newCorners[1][1] - discPaddingTop],
+        [
+          newCorners[2][0] + discPaddingRight,
+          newCorners[2][1] - discPaddingTop,
+        ],
+        [
+          newCorners[3][0] + discPaddingRight,
+          newCorners[3][1] + discPaddingBottom,
+        ],
+      ];
+      void submitCalibration(paddedCorners);
     } else {
       setCorners(newCorners);
     }
