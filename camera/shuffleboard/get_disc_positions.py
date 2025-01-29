@@ -22,10 +22,9 @@ class Disc:
   colour: DiscColour
 
 surface_dimensions = (400, 1200)
+new_corners = np.array([[0, 0], [surface_dimensions[0], 0], surface_dimensions, [0, surface_dimensions[1]]], dtype=np.float32)
 
-def __get_transformed_image(img, corners):
-    new_corners = np.array([[0, 0], [surface_dimensions[0], 0], surface_dimensions, [0, surface_dimensions[1]]], dtype=np.float32)
-
+def __transform_image_to_top_down_view(img, corners):
     T = cv2.getPerspectiveTransform(corners, new_corners)
     transformed_img = cv2.warpPerspective(img, T, surface_dimensions)
 
@@ -104,7 +103,7 @@ def get_discs(img, board_coordinates):
     board_corners = np.array(board_coordinates, dtype = np.float32) # BL, TL, TR, BR
 
     try:
-        img_transformed = __get_transformed_image(img, board_corners)
+        img_transformed = __transform_image_to_top_down_view(img, board_corners)
 
         img_transformed_hsv = cv2.cvtColor(img_transformed, cv2.COLOR_BGR2HSV)
 
