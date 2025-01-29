@@ -1,3 +1,5 @@
+import cv2
+
 def get_binary_thresholded_img(img_hsv):
     if len(img_hsv.shape) != 3 or img_hsv.shape[2] != 3:
         raise ValueError("Input image must be in HSV format with 3 bands.")
