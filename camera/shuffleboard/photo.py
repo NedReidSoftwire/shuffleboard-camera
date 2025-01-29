@@ -1,5 +1,9 @@
 import cv2
 
+from shuffleboard.base_logger import setup_logger
+
+logger = setup_logger(__file__)
+
 CAMERA_PORT = 0
 
 cam = cv2.VideoCapture(CAMERA_PORT) 
@@ -9,7 +13,7 @@ def take_photo():
     if result: 
         return image 
 
-    print('Failed to read from camera')
+    logger.warning('Failed to read from camera')
 
 if __name__ == '__main__':
     capture = take_photo()

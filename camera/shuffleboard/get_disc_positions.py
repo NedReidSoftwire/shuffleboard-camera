@@ -4,9 +4,12 @@ from enum import Enum
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
+from shuffleboard.base_logger import setup_logger
 from shuffleboard.photo import take_photo
 from shuffleboard.get_colour_masks import get_red_mask, get_blue_mask
 from shuffleboard.image_utils import get_binary_thresholded_img
+
+logger = setup_logger(__file__)
 
 DEBUG = False
 
@@ -114,16 +117,16 @@ def get_discs(img, board_coordinates):
 
         if DEBUG:
             cv2.imwrite('debug_transformed_image.png', img_transformed)
-            print('Disc detections:', len(red_discs), 'red', len(blue_discs), 'blue')
-            print('all_discs:', all_discs)
+            logger.info(f'Disc detections: {len(red_discs)} red, {len(blue_discs)} blue')
+            logger.info(f'All disc coordinates: {all_discs}')
 
         return all_discs
     except Exception as e:
-        print(f"An error occurred while getting the discs: {e}")
+        logger.error(f"An error occurred while getting the discs: {e}")
         return []
 
 if __name__ == '__main__':
     img = take_photo()
 
     coords = get_discs(img)
-    print('coords:', coords)
+    logger.info(f'Disc coordinates: {coords}')
