@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
-from dataclasses import dataclass
 from enum import Enum
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
 from shuffleboard.photo import take_photo
+from shuffleboard.get_colour_masks import get_red_mask, get_blue_mask
 
 DEBUG = False
 
@@ -34,10 +34,10 @@ def __get_discs_by_colour(img_hsv, colour):
     assert len(img_hsv.shape) == 3 and img_hsv.shape[2] == 3, "Provided image must have 3 bands."
 
     if colour == DiscColour.RED:
-        detections = __get_red_objects(img_hsv)
+        detections = __get_objects_by_colour(img_hsv, colour)
         colour_rgb = (0, 0, 255)
     elif colour == DiscColour.BLUE:
-        detections = __get_blue_objects(img_hsv)
+        detections = __get_objects_by_colour(img_hsv, colour)
         colour_rgb = (255, 0, 0)
     else:
         raise Exception("Unsupported disc colour.")
@@ -87,30 +87,17 @@ def __get_discs_by_colour(img_hsv, colour):
 
     return discs
 
-def __get_red_objects(img_hsv):
-    # Note that red is split across the 0-180 degree range so we need to check two ranges.
-    # colour map: https://i.sstatic.net/gyuw4.png
-    red_lower_1 = np.array([160, 150, 20])
-    red_upper_1 = np.array([180, 255, 255])
-    red_mask_1 = cv2.inRange(img_hsv, red_lower_1, red_upper_1)
+def __get_objects_by_colour(img_hsv, colour):
+    if colour == DiscColour.RED:
+        mask = get_red_mask(img_hsv)
+    elif colour == DiscColour.BLUE:
+        mask = get_blue_mask(img_hsv)
+    else:
+        raise Exception("Unsupported disc colour.")
+    
+    objects = cv2.bitwise_and(img_hsv, img_hsv, mask=mask)
 
-    red_lower_2 = np.array([0, 150, 20])
-    red_upper_2 = np.array([20, 255, 255])
-    red_mask_2 = cv2.inRange(img_hsv, red_lower_2, red_upper_2)
-
-    red_mask_combined = cv2.bitwise_or(red_mask_1, red_mask_2)
-    red_objects = cv2.bitwise_and(img_hsv, img_hsv, mask=red_mask_combined)
-
-    return __get_binary_thresholded_img(red_objects)
-
-def __get_blue_objects(img_hsv):
-    blue_lower = np.array([100, 140, 5])
-    blue_upper = np.array([130, 255, 255])
-    blue_mask = cv2.inRange(img_hsv, blue_lower, blue_upper)
-
-    blue_objects = cv2.bitwise_and(img_hsv, img_hsv, mask=blue_mask)
-
-    return __get_binary_thresholded_img(blue_objects)
+    return __get_binary_thresholded_img(objects)
 
 def __get_binary_thresholded_img(img_hsv):
     img_greyscale = cv2.split(img_hsv)[2]
