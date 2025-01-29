@@ -1,4 +1,4 @@
-import unittest
+from test_base import TestBase
 from unittest.mock import patch
 import numpy as np
 import cv2
@@ -6,16 +6,16 @@ import base64
 
 from shuffleboard.get_calibration_image import get_calibration_image
 
-class TestGetCalibrationImage(unittest.TestCase):
+class TestGetCalibrationImage(TestBase):
     def setUp(self):
         self.test_image = np.zeros((100, 100, 3), dtype=np.uint8)
         # Add some test pattern to make it unique
         self.test_image[30:70, 30:70] = 255
 
-    @patch('shuffleboard.get_calibration_image.take_photo')
-    def test_successful_image_capture(self, mock_take_photo):
+    @patch('shuffleboard.get_calibration_image.capture_image')
+    def test_successful_image_capture(self, mock_capture_image):
         # Arrange
-        mock_take_photo.return_value = self.test_image
+        mock_capture_image.return_value = self.test_image
 
         # Act
         result = get_calibration_image()
@@ -30,10 +30,10 @@ class TestGetCalibrationImage(unittest.TestCase):
         # Tolerance accounts for minor differences due to JPEG compression.
         self.assertTrue(np.allclose(decoded_image, self.test_image, atol=5), "Decoded image does not match test image within tolerance")
 
-    @patch('shuffleboard.get_calibration_image.take_photo')
-    def test_handle_photo_error(self, mock_take_photo):
+    @patch('shuffleboard.get_calibration_image.capture_image')
+    def test_handle_photo_error(self, mock_capture_image):
         # Arrange
-        mock_take_photo.side_effect = Exception("Camera error")
+        mock_capture_image.side_effect = Exception("Camera error")
 
         # Act
         result = get_calibration_image()

@@ -2,9 +2,12 @@ import socketio
 import asyncio
 import base64
 
-from shuffleboard.photo import take_photo
+from shuffleboard.base_logger import setup_logger
+from shuffleboard.capture import capture_image
 from shuffleboard.get_calibration_image import get_calibration_image
-from shuffleboard.shuffleView import get_discs
+from shuffleboard.get_disc_positions import get_discs
+
+logger = setup_logger(__file__)
 
 # Upper bound for updates per second (excludes processing time)
 UPDATES_PER_SECOND = 30
@@ -19,7 +22,7 @@ async def send_state_periodically():
     def update_calibration_coordinates(coordinates):
         global board_coordinates
         board_coordinates = coordinates
-        print(f'New calibration coordinates: {coordinates}')
+        logger.info(f'New calibration coordinates: {coordinates}')
 
     try:
         await sio.connect("http://localhost:3000")
@@ -27,10 +30,11 @@ async def send_state_periodically():
         sio.on("get-calibration-image", send_calibration_image)
         sio.on("update-calibration-coordinates", update_calibration_coordinates)
 
-        print("Camera service connected to web service")
+        logger.info("Camera service connected to web service")
+
         while True:
             if board_coordinates is not None:
-                img = take_photo()
+                img = capture_image()
                 game_state = get_discs(img, board_coordinates)
                 game_state_json = [disc.to_json() for disc in game_state]
                 
@@ -38,18 +42,19 @@ async def send_state_periodically():
         
             await asyncio.sleep(SLEEP_DURATION)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
     finally:
         await sio.disconnect()
-        print("Camera service disconnected from web service")
+        logger.info("Camera service disconnected from web service")
 
 async def send_calibration_image():
     try:
-        print("Getting encoded calibration image...")
+        logger.info("Getting encoded calibration image...")
         jpg_string = get_calibration_image()
+
         await sio.emit("send-calibration-image", jpg_string)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     asyncio.run(send_state_periodically())
