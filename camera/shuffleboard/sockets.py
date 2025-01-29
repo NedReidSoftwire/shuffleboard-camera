@@ -4,7 +4,7 @@ import base64
 
 from shuffleboard.photo import take_photo
 from shuffleboard.get_calibration_image import get_calibration_image
-from shuffleboard.shuffleView import get_discs
+from shuffleboard.get_disc_positions import get_discs
 
 # Upper bound for updates per second (excludes processing time)
 UPDATES_PER_SECOND = 30
