@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
 from shuffleboard.base_logger import setup_logger
-from shuffleboard.photo import take_photo
+from shuffleboard.capture import capture_image
 from shuffleboard.get_colour_masks import get_red_mask, get_blue_mask
 from shuffleboard.image_utils import get_binary_thresholded_img
 
@@ -126,7 +126,7 @@ def get_discs(img, board_coordinates):
         return []
 
 if __name__ == '__main__':
-    img = take_photo()
+    img = capture_image()
 
     coords = get_discs(img)
     logger.info(f'Disc coordinates: {coords}')

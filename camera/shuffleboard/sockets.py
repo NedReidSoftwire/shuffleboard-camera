@@ -3,7 +3,7 @@ import asyncio
 import base64
 
 from shuffleboard.base_logger import setup_logger
-from shuffleboard.photo import take_photo
+from shuffleboard.capture import capture_image
 from shuffleboard.get_calibration_image import get_calibration_image
 from shuffleboard.get_disc_positions import get_discs
 
@@ -34,7 +34,7 @@ async def send_state_periodically():
 
         while True:
             if board_coordinates is not None:
-                img = take_photo()
+                img = capture_image()
                 game_state = get_discs(img, board_coordinates)
                 game_state_json = [disc.to_json() for disc in game_state]
                 
