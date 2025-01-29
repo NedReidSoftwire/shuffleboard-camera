@@ -9,6 +9,6 @@ def visualise_calibration_coordinates(coordinates):
     img = capture_image()
 
     for x, y in coordinates:
-        cv2.circle(img, (x, y), 5, (0, 255, 0), 2)
+        cv2.circle(img, (int(x), int(y)), 5, (0, 255, 0), 2)
 
     cv2.imwrite('debug_calibrated_coordinates.jpg', img)
