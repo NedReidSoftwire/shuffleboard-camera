@@ -33,19 +33,8 @@ def __transform_image_to_top_down_view(img, corners):
 
     return transformed_img
 
-def __get_discs_by_colour(img_hsv, colour):
-    assert len(img_hsv.shape) == 3 and img_hsv.shape[2] == 3, "Provided image must have 3 bands."
-
-    if colour == DiscColour.RED:
-        detections = __get_objects_by_colour(img_hsv, colour)
-        colour_rgb = (0, 0, 255)
-    elif colour == DiscColour.BLUE:
-        detections = __get_objects_by_colour(img_hsv, colour)
-        colour_rgb = (255, 0, 0)
-    else:
-        raise Exception("Unsupported disc colour.")
-
-    blurred = cv2.GaussianBlur(detections, (9, 9), 2)
+def get_circles(binary_detections_img, colour):
+    blurred = cv2.GaussianBlur(binary_detections_img, (9, 9), 2)
     if DEBUG:
         cv2.imwrite(f'debug_blurred_{colour.value}.png', blurred)
 
@@ -66,10 +55,24 @@ def __get_discs_by_colour(img_hsv, colour):
     if circles is None:
         return []
 
+    return np.uint16(np.around(circles))
+
+def __get_discs_by_colour(img_hsv, colour):
+    assert len(img_hsv.shape) == 3 and img_hsv.shape[2] == 3, "Provided image must have 3 bands."
+
+    if colour == DiscColour.RED:
+        detections_img = __get_objects_by_colour(img_hsv, colour)
+        colour_rgb = (0, 0, 255)
+    elif colour == DiscColour.BLUE:
+        detections_img = __get_objects_by_colour(img_hsv, colour)
+        colour_rgb = (255, 0, 0)
+    else:
+        raise Exception("Unsupported disc colour.")
+
+    circles = get_circles(detections_img, colour)
+
     if DEBUG:
         debug_img = img_hsv.copy()
-
-    circles = np.uint16(np.around(circles))
 
     discs = []
     for x, y, radius in circles[0, :]:
