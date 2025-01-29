@@ -6,6 +6,7 @@ from shuffleboard.base_logger import setup_logger
 from shuffleboard.capture import capture_image
 from shuffleboard.get_calibration_image import get_calibration_image
 from shuffleboard.get_disc_positions import get_discs
+from shuffleboard.visualise_calibration_coordinates import visualise_calibration_coordinates
 
 logger = setup_logger(__file__)
 
@@ -22,7 +23,9 @@ async def send_state_periodically():
     def update_calibration_coordinates(coordinates):
         global board_coordinates
         board_coordinates = coordinates
+
         logger.info(f'New calibration coordinates: {coordinates}')
+        visualise_calibration_coordinates(coordinates)
 
     try:
         await sio.connect("http://localhost:3000")
