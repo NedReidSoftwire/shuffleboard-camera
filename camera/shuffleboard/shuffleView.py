@@ -1,10 +1,11 @@
 import cv2
 import numpy as np
-from utils import get_limits
 from dataclasses import dataclass
 from enum import Enum
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
+
+from shuffleboard.photo import take_photo
 
 DEBUG = False
 
@@ -69,8 +70,9 @@ def __get_discs_by_colour(img_hsv, colour):
 
     discs = []
     for x, y, radius in circles[0, :]:
-        # NOTE: Due to the camera's position, the y-axis is to the center of the surface,
-        # we want the y-coordinates to begin at the end of the table.
+        # NOTE: Due to the camera's position, the y-axis is to the midpoint of
+        # the shuffleboard surface, we want the y-coordinates to begin at the 
+        # end of the table.
         flipped_y = surface_dimensions[1] - y.item()
 
         discs.append(Disc(x=x.item(), y=flipped_y, colour=colour))
@@ -118,6 +120,7 @@ def __get_binary_thresholded_img(img_hsv):
 
 def get_discs(img, board_coordinates):
     board_corners = np.array(board_coordinates, dtype = np.float32)  # BL, TL, TR, BR
+
     try:
         img_transformed = __get_transformed_image(img, board_corners)
 
@@ -139,7 +142,7 @@ def get_discs(img, board_coordinates):
         return []
 
 if __name__ == '__main__':
-    img = cv2.imread('capture.png')
+    img = take_photo()
 
     coords = get_discs(img)
     print('coords:', coords)

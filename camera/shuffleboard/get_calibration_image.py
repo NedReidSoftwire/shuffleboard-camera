@@ -1,7 +1,7 @@
 import cv2
 import base64
-from photo import take_photo
 
+from shuffleboard.photo import take_photo
 
 def get_calibration_image():
     try:
