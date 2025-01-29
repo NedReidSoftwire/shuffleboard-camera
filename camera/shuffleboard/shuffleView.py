@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from utils import get_limits
 from dataclasses import dataclass
 from enum import Enum
 from dataclasses import dataclass
