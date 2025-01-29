@@ -57,8 +57,10 @@ def get_circles(binary_detections_img, colour):
 
     return np.uint16(np.around(circles))
 
-def __get_discs_by_colour(img_hsv, colour):
-    assert len(img_hsv.shape) == 3 and img_hsv.shape[2] == 3, "Provided image must have 3 bands."
+def __get_discs_by_colour(img_bgr, colour):
+    assert len(img_bgr.shape) == 3, "Provided image must have 3 bands."
+
+    img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
 
     if colour == DiscColour.RED:
         detections_img = __get_objects_by_colour(img_hsv, colour)
@@ -72,7 +74,7 @@ def __get_discs_by_colour(img_hsv, colour):
     circles = get_circles(detections_img, colour)
 
     if DEBUG:
-        debug_img = img_hsv.copy()
+        debug_img = img_bgr.copy()
 
     discs = []
     for x, y, radius in circles[0, :]:
@@ -111,10 +113,8 @@ def get_discs(img, board_coordinates):
     try:
         img_transformed = __transform_image_to_top_down_view(img, board_corners)
 
-        img_transformed_hsv = cv2.cvtColor(img_transformed, cv2.COLOR_BGR2HSV)
-
-        red_discs = __get_discs_by_colour(img_transformed_hsv, DiscColour.RED)
-        blue_discs = __get_discs_by_colour(img_transformed_hsv, DiscColour.BLUE)
+        red_discs = __get_discs_by_colour(img_transformed, DiscColour.RED)
+        blue_discs = __get_discs_by_colour(img_transformed, DiscColour.BLUE)
 
         all_discs = red_discs + blue_discs
 
