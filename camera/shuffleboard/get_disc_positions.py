@@ -6,6 +6,7 @@ from dataclasses_json import dataclass_json
 
 from shuffleboard.photo import take_photo
 from shuffleboard.get_colour_masks import get_red_mask, get_blue_mask
+from shuffleboard.image_utils import get_binary_thresholded_img
 
 DEBUG = False
 
@@ -97,16 +98,10 @@ def __get_objects_by_colour(img_hsv, colour):
     
     objects = cv2.bitwise_and(img_hsv, img_hsv, mask=mask)
 
-    return __get_binary_thresholded_img(objects)
-
-def __get_binary_thresholded_img(img_hsv):
-    img_greyscale = cv2.split(img_hsv)[2]
-    _, img_thresholded = cv2.threshold(img_greyscale, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-
-    return img_thresholded
+    return get_binary_thresholded_img(objects)
 
 def get_discs(img, board_coordinates):
-    board_corners = np.array(board_coordinates, dtype = np.float32)  # BL, TL, TR, BR
+    board_corners = np.array(board_coordinates, dtype = np.float32) # BL, TL, TR, BR
 
     try:
         img_transformed = __get_transformed_image(img, board_corners)
