@@ -87,7 +87,7 @@ def __get_discs_by_colour(img_bgr, colour):
 
         if DEBUG:
             center = (x, y)
-            cv2.circle(debug_img, center, radius, colour_rgb, 4)
+            cv2.circle(debug_img, center, radius, colour_rgb, 5)
             cv2.circle(debug_img, center, 8, colour_rgb, -1)
     
     if DEBUG:
