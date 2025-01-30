@@ -78,9 +78,11 @@ def __get_discs_by_colour(img_bgr, colour):
 
     discs = []
     for x, y, radius in circles[0, :]:
-        # NOTE: Due to the camera's position, the y-axis is to the midpoint of
-        # the shuffleboard surface, we want the y-coordinates to begin at the 
-        # end of the table.
+        # NOTE: At present, the camera positioning means the shot only contains
+        # the right half of the table. Additionally, the frontend only supports
+        # half of a table. This means that the y-axis must start at the end of
+        # the table, which is the opposite of the y-axis of the shot.
+        # Therefore, we must 'flip' this y-axis.
         flipped_y = surface_dimensions[1] - y.item()
 
         discs.append(Disc(x=x.item(), y=flipped_y, colour=colour))
