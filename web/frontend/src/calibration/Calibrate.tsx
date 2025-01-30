@@ -31,7 +31,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   const [reactImage] = useImage("data:image/jpeg;base64," + image);
   useEffect(() => {
     console.log(currentCorner);
-  }, [currentCorner, width, height]);
+  }, [currentCorner]);
 
   const transformStageCoordinatesToCameraCoordinates = (stageCoordinates: Coordinate[]): Coordinate[] => 
     stageCoordinates.map(([x, y]) => [
