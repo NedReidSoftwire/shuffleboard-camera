@@ -22,6 +22,16 @@ async def send_state_periodically():
 
     def update_calibration_coordinates(coordinates):
         global board_coordinates
+
+        # TODO: We need to add margins to these coordinates before saving them.
+        #
+        # Detections are designed to work when > 0.5 of the disc is visible in the image.
+        # For the surface midpoint, we need a negative margin to ensure the disc has fully
+        # crossed the line (since detection works with only > 0.5 of disc visible).
+        # For the other three edges, we need positive margins to detect discs that are
+        # partially on the edge of the surface (where only ~half the disc width is visible).
+        #
+        # These margins will be dependent on the shot dimensions.
         board_coordinates = coordinates
 
         logger.info(f'New calibration coordinates: {coordinates}')
