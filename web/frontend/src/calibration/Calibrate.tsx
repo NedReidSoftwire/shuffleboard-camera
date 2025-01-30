@@ -33,6 +33,11 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
     console.log(currentCorner);
   }, [currentCorner]);
 
+  /**
+   * Transform coordinates from stage (display) space to camera space.
+   * Since the stage is scaled to fit the window width while maintaining aspect ratio,
+   * we need to scale the coordinates back to match the actual camera resolution.
+   */
   const transformStageCoordinatesToCameraCoordinates = (stageCoordinates: Coordinate[]): Coordinate[] => 
     stageCoordinates.map(([x, y]) => [
       x * (CAMERA_WIDTH / width),
