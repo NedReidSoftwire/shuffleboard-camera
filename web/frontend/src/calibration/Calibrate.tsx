@@ -25,8 +25,12 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   const currentStep = corners.length;
   const [currentCorner, setCurrentCorner] = useState<Coordinate>([0, 0]);
   const mouseDown = useRef(false);
+
   const width = window.innerWidth;
   const height = (CAMERA_HEIGHT / CAMERA_WIDTH) * width;
+
+  const scaleX = CAMERA_WIDTH / width
+  const scaleY = CAMERA_HEIGHT / height
 
   const [reactImage] = useImage("data:image/jpeg;base64," + image);
   useEffect(() => {
@@ -40,8 +44,8 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
    */
   const transformStageCoordinatesToCameraCoordinates = (stageCoordinates: Coordinate[]): Coordinate[] => 
     stageCoordinates.map(([x, y]) => [
-      x * (CAMERA_WIDTH / width),
-      y * (CAMERA_HEIGHT / height)
+      x * scaleX,
+      y * scaleY
     ]);
 
   const submitCalibration = async (stageCoordinates: Coordinate[]) => {
