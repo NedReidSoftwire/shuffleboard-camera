@@ -31,10 +31,23 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   const [reactImage] = useImage("data:image/jpeg;base64," + image);
   useEffect(() => {
     console.log(currentCorner);
-  }, [currentCorner]);
+  }, [currentCorner, width, height]);
 
-  const submitCalibration = async (allCorners: Coordinate[]) => {
-    socket.emit("send-calibration-coordinates", allCorners);
+  const transformStageCoordinatesToCameraCoordinates = (stageCoordinates: Coordinate[]): Coordinate[] => 
+    stageCoordinates.map(([x, y]) => [
+      x * (CAMERA_WIDTH / width),
+      y * (CAMERA_HEIGHT / height)
+    ]);
+
+  const submitCalibration = async (stageCoordinates: Coordinate[]) => {
+    if (stageCoordinates.length !== 4) {
+      throw new Error("4 corner coordinates required for calibration.");
+    }
+
+    const cameraCoordinates = transformStageCoordinatesToCameraCoordinates(stageCoordinates);
+
+    socket.emit("send-calibration-coordinates", cameraCoordinates);
+
     onComplete();
   };
 
