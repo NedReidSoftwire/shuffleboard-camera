@@ -1,15 +1,23 @@
 import { Coordinate, Disc, DiscWithIndex, Polygon, TeamColour, ZoneOfControlState } from "../../types/types";
 
 export const testDiscPositions: Disc[] = [
-    {x: 20, y: 20, colour: TeamColour.RED},
-    {x: 40, y: 40, colour: TeamColour.BLUE},
-    {x: 123, y: 57, colour: TeamColour.RED},
-    {x: 40, y: 45, colour: TeamColour.BLUE},
-    {x: 200, y: 589, colour: TeamColour.RED},
-    {x: 300, y: 1097, colour: TeamColour.RED},
-    {x: 350, y: 10, colour: TeamColour.BLUE},
-    {x: 60, y: 86, colour: TeamColour.BLUE},
-]
+    {x: 20, y: 20, colour: TeamColour.BLUE},
+    {x: 123, y: 57, colour: TeamColour.BLUE},
+    {x: 200, y: 589, colour: TeamColour.BLUE},
+    {x: 300, y: 1097, colour: TeamColour.BLUE},
+    {x: 40, y: 40, colour: TeamColour.RED},
+    {x: 40, y: 45, colour: TeamColour.RED},
+    {x: 350, y: 10, colour: TeamColour.RED},
+    {x: 60, y: 86, colour: TeamColour.RED},
+    {x: 120, y: 300, colour: TeamColour.BLUE},
+    {x: 180, y: 800, colour: TeamColour.BLUE},
+    {x: 240, y: 1100, colour: TeamColour.BLUE},
+    {x: 380, y: 90, colour: TeamColour.BLUE},
+    {x: 50, y: 220, colour: TeamColour.RED},
+    {x: 90, y: 600, colour: TeamColour.RED},
+    {x: 310, y: 1150, colour: TeamColour.RED},
+    {x: 370, y: 400, colour: TeamColour.RED},
+];
 
 export const getZoneOfControl = (discPositions: Disc[]): ZoneOfControlState => {
     const discsWithIndices = discPositions.map((disc, index): DiscWithIndex => ({...disc, index}))
@@ -174,6 +182,8 @@ const isPointOutsideBoundary = (point: Coordinate) => point.x < -0.01 || point.y
 
 const sortByScf = (a: {scf: number}, b: {scf: number}) => a.scf - b.scf 
 
+const sortByScfNeg = (a: {scf: number}, b: {scf: number}) => -a.scf + b.scf 
+
 const calculateCollisionPoint = (pointWithVectorA: PointAndPpdVector, pointWithVectorB: PointAndPpdVector) => {
     const equation1 = [pointWithVectorA.vx, -pointWithVectorB.vx, pointWithVectorB.x - pointWithVectorA.x] //ax + by = c
     const equation2 = [pointWithVectorA.vy, -pointWithVectorB.vy, pointWithVectorB.y - pointWithVectorA.y] //cx + dy = e
@@ -201,6 +211,8 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
 
         let currentSegmentName: string;
         let currentPoint: BoundaryPoint | (Coordinate & {scf: number});
+        let direction = "UNKNOWN"
+        let runOutOfCorners = false
 
         if (remainingCorners.length > 0) {
             currentSegmentName = remainingCorners[0].wallType
@@ -208,29 +220,40 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
             remainingCorners = remainingCorners.filter(remCorner => remCorner.wallType !== currentSegmentName)
         } else {
             currentSegmentName = lineSegmentsToCoverTwice[0]
-            currentPoint = segmentNameToBoundaryMap[currentSegmentName][0]   
-            if (lineSegmentsCovered.includes(currentSegmentName)) {
-                lineSegmentsToCoverTwice = lineSegmentsToCoverTwice.filter(seg => seg !== currentSegmentName)
-            } else {
-                lineSegmentsCovered.push(currentSegmentName)
-            }
+            currentPoint = segmentNameToBoundaryMap[currentSegmentName][0]  
+            runOutOfCorners = true
         }
-        
-        while ((!polygon.length || currentPoint.x !== polygon[0].x || currentPoint.y !== polygon[0].y) && polygon.length < 15) {
+
+        while ((!polygon.length || currentPoint.x !== polygon[0].x || currentPoint.y !== polygon[0].y) && polygon.length < 100) {
             polygon.push({x: currentPoint.x, y: currentPoint.y})
             
             if (outerWalls.includes(currentSegmentName)) {
-                const nextPointOnWall = segmentNameToBoundaryMap[currentSegmentName]?.find((segmentBoundary) => segmentBoundary.scf > currentPoint.scf)
-                if (nextPointOnWall) {
+                let nextPointOnWall = segmentNameToBoundaryMap[currentSegmentName]?.find((segmentBoundary) => segmentBoundary.scf > currentPoint.scf) 
+                if (nextPointOnWall || runOutOfCorners) {
+                    if (runOutOfCorners && (!nextPointOnWall || !lineSegmentsToCoverTwice.includes(nextPointOnWall.connectsTo) || direction == "ANTICLOCKWISE")) {
+                        nextPointOnWall = segmentNameToBoundaryMap[currentSegmentName]?.sort(sortByScfNeg).find((segmentBoundary) => segmentBoundary.scf < currentPoint.scf) 
+                        direction = "ANTICLOCKWISE"
+                    } else {
+                        direction = "CLOCKWISE"
+                    }
+
+                    if (!nextPointOnWall) {
+                        throw new Error("Bad 3")
+                    }
+
                     const index = segmentNameToBoundaryMap[nextPointOnWall.connectsTo].findIndex(seg => seg.connectsTo === currentSegmentName)
                     if (!colour) {
-                        colour = index == 0 ? TeamColour.BLUE : TeamColour.RED
+                        if (direction === "CLOCKWISE") {
+                            colour = index == 0 ? TeamColour.BLUE : TeamColour.RED
+                        } else {
+                            colour = index == 1 ? TeamColour.BLUE : TeamColour.RED
+                        }
                     }
                     currentPoint = segmentNameToBoundaryMap[nextPointOnWall.connectsTo][index]
                     currentSegmentName = nextPointOnWall.connectsTo
                 }
                 else {
-                    const nextCorner = cornersOfTheBoard[(outerWalls.findIndex((wall) => wall == currentSegmentName) + 1) % 4]
+                    const nextCorner = cornersOfTheBoard[(outerWalls.findIndex((wall) => wall == currentSegmentName) + 1 ) % 4]
                     currentPoint = {...nextCorner, scf: 0}
                     currentSegmentName = nextCorner.wallType
                     remainingCorners = remainingCorners.filter(remCorner => remCorner.wallType !== currentSegmentName)
@@ -238,26 +261,27 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
             }
 
             else {
-                if (lineSegmentsCovered.includes(currentSegmentName)) {
-                    lineSegmentsToCoverTwice = lineSegmentsToCoverTwice.filter(seg => seg !== currentSegmentName)
-                } else {
-                    lineSegmentsCovered.push(currentSegmentName)
-                }
-
                 const segmentEnd = segmentNameToBoundaryMap[currentSegmentName].find((segmentBoundary) => segmentBoundary.scf !== currentPoint.scf)
                 if (!segmentEnd) {
-                    console.log("uh oh")
                     throw new Error("BAD")
                 }
                 const nextSegmentBeginning = segmentNameToBoundaryMap[segmentEnd.connectsTo].find((segmentBoundary) => segmentBoundary.connectsTo == currentSegmentName)
                 if (!nextSegmentBeginning) {
-                    console.log("uh oh 2")
                     throw new Error("Bad 2")
                 }
                 currentPoint = nextSegmentBeginning
                 currentSegmentName = segmentEnd.connectsTo
             }
+
+            if (lineSegmentsToCoverTwice.includes(currentSegmentName)) {
+                if (lineSegmentsCovered.includes(currentSegmentName)) {
+                    lineSegmentsToCoverTwice = lineSegmentsToCoverTwice.filter(seg => seg !== currentSegmentName)
+                } else {
+                    lineSegmentsCovered.push(currentSegmentName)
+                }
+            }
         }
+
 
         polygons.push({coordinates: polygon, colour})
     
