@@ -8,6 +8,8 @@ import {
 } from "./calculateDiscPosition";
 import { getShortCircuitState } from "./shortCircuit";
 import { GameModeService } from "../services/game-mode-service";
+import { getZoneOfControl, testDiscPositions } from "./zoneOfControl";
+import { GAME_MODE } from "../../types/game-modes";
 
 const discState: ShortCircuitGameState = {
   discs: [],
@@ -16,10 +18,17 @@ const discState: ShortCircuitGameState = {
     redDistance: undefined,
     winner: undefined,
   },
-};
+  zoneOfControl: {
+    redPercentage: undefined,
+    bluePercentage: undefined,
+    polygons: []
+  }
+}
 
 export const createSocket = (server: HttpServer, gameModeService: GameModeService) => {
   const io = new Server(server);
+  
+  getZoneOfControl(testDiscPositions)
 
   io.on("connection", (socket) => {
     console.log("a user connected");
@@ -65,7 +74,11 @@ function sendState(newDiscsJson: string[], io: Server, gameModeService: GameMode
     updateLastXDiscStates(newDiscs);
     discState.gameMode = gameModeService.getGameMode();
     discState.discs = calculateAverageDiscStates(discState.discs);
-    discState.shortCircuit = getShortCircuitState(discState.discs);
+    if (discState.gameMode == GAME_MODE.SHORT_CIRCUIT) {
+      discState.shortCircuit = getShortCircuitState(discState.discs);
+    } else {
+      discState.zoneOfControl = getZoneOfControl(discState.discs);
+    }
     io.emit("short-circuit", discState);
   } catch (e) {
     console.log(e);

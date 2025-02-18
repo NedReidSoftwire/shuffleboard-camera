@@ -34,6 +34,22 @@ export type ShortCircuitState = {
 
 export type ShortCircuitGameState = GameState & {
     shortCircuit: ShortCircuitState
+    zoneOfControl: ZoneOfControlState
 }
 
-export type Coordinate = [number, number]
+export type ZoneOfControlState = {
+    redPercentage?: number
+    bluePercentage?: number
+    polygons: Polygon[]
+}
+
+export type Polygon = {
+    coordinates: Coordinate[]
+    colour: TeamColour | undefined
+}
+
+export type Coordinate = {
+    x: number
+    y: number
+}
+
