@@ -1,14 +1,16 @@
 import { Canvas, useLoader, useThree } from "@react-three/fiber";
 
 import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
-import { Suspense } from "react";
-import { Environment, Line } from "@react-three/drei";
+import { Suspense, useMemo } from "react";
+import { Environment, Line} from "@react-three/drei";
 import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
-import { Disc, ShortCircuitState, TeamColour } from "../../../types/types.ts";
+import { Coordinate, Disc, ShortCircuitState, TeamColour, ZoneOfControlState } from "../../../types/types.ts";
 import {
   BOARD_DIMENSIONS,
   DISC_DIAMETER,
 } from "../../../constants/constants.ts";
+import { fill } from "three/src/extras/TextureUtils.js";
+import { color, Shape } from "three/webgpu";
 
 const BOARD_MODEL_LENGTH = 2.25;
 const BOARD_MODEL_HEIGHT = 1.4;
@@ -22,6 +24,32 @@ const boardScale = [
 ];
 const discScale = (DISC_DIAMETER * GLOBAL_SCALE) / DISC_MODEL_DIAMETER;
 
+
+const FilledPolygon3D = ({ coordinates, colour, height = 0.1 }: any) => {
+  const shape = useMemo(() => {
+    const polygonShape = new Shape();
+    coordinates.forEach((coord: any, index: any) => {
+      const point = coordToPoint(coord); // Convert to Three.js Vector3
+      if (index === 0) {
+        polygonShape.moveTo(point[0], point[2]); // XZ plane
+      } else {
+        polygonShape.lineTo(point[0], point[2]);
+      }
+    });
+    polygonShape.closePath();
+    return polygonShape;
+  }, [coordinates]);
+
+  const extrudeSettings = { depth: height, bevelEnabled: false };
+
+  return (
+    <mesh rotation={[ Math.PI / 2, 0, 0]} position={[0, 1, 0]}>
+      <extrudeGeometry args={[shape, extrudeSettings]} />
+      <meshStandardMaterial color={colour} opacity={0.4} transparent />
+    </mesh>
+  );
+};
+
 const realToGameWorldMapping = (disc: Disc): Disc => {
   return {
     colour: disc.colour,
@@ -34,6 +62,12 @@ const discPos = (disc: Disc): [x: number, y: number, z: number] => [
   0,
   disc.y,
 ];
+
+const coordToPoint = (coord: Coordinate): [x: number, y: number, z: number] => [
+  (BOARD_DIMENSIONS.y - coord.y) * GLOBAL_SCALE,
+  0,
+  (BOARD_DIMENSIONS.x / 2 - coord.x) * GLOBAL_SCALE
+]
 
 const FixedCamera = () => {
   useThree(({ camera }) => {
@@ -56,9 +90,10 @@ const useObj = (src: string) => {
 type BoardViewProps = {
   discs: Disc[];
   shortCircuit?: ShortCircuitState;
+  zoneOfControl?: ZoneOfControlState;
 };
 
-const BoardView = ({ discs, shortCircuit }: BoardViewProps) => {
+const BoardView = ({ discs, shortCircuit, zoneOfControl }: BoardViewProps) => {
   const redDisc = useObj("/models/red_disc");
   const blueDisc = useObj("/models/blue_disc");
   const board = useObj("/models/board");
@@ -82,6 +117,18 @@ const BoardView = ({ discs, shortCircuit }: BoardViewProps) => {
             />
           ))}
           <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
+          {
+            zoneOfControl &&
+            zoneOfControl.polygons.map((poly, index) => (
+              <FilledPolygon3D
+                key={index}
+                coordinates={poly.coordinates}
+                colour={poly.colour === TeamColour.RED ? "red" : "blue"}
+                height={1} // Adjust height as needed
+              />
+            ))
+          }
+
           {shortCircuit && shortCircuit.redDistance && (
             <Line
               points={[

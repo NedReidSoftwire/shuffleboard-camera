@@ -8,7 +8,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import useImage from "use-image";
 import { Socket } from "socket.io-client";
-import { Coordinate } from "../../../types/types.ts";
+import { PixelCoordinate } from "../../../types/types.ts";
 
 type CalibrateProps = {
   image: string;
@@ -16,7 +16,7 @@ type CalibrateProps = {
   onComplete: () => void;
 };
 
-const pixelDistanceBetween = (a: Coordinate, b: Coordinate) => {
+const pixelDistanceBetween = (a: number[], b: PixelCoordinate) => {
   return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);
 };
 
@@ -30,9 +30,9 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
     "Top right",
     "Bottom right",
   ];
-  const [corners, setCorners] = useState<Coordinate[]>([]);
+  const [corners, setCorners] = useState<PixelCoordinate[]>([]);
   const currentStep = corners.length;
-  const [currentCorner, setCurrentCorner] = useState<Coordinate>([0, 0]);
+  const [currentCorner, setCurrentCorner] = useState<PixelCoordinate>([0, 0]);
   const mouseDown = useRef(false);
   const width = window.innerWidth;
   const height = (CAMERA_HEIGHT / CAMERA_WIDTH) * width;
@@ -42,13 +42,13 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
     console.log(currentCorner);
   }, [currentCorner]);
 
-  const submitCalibration = async (allCorners: Coordinate[]) => {
-    socket.emit("send-calibration-coordinates", allCorners);
+  const submitCalibration = async (allCorners: PixelCoordinate[]) => {
+    socket.emit("send-calibration-PixelCoordinates", allCorners);
     onComplete();
   };
 
   const addCorner = () => {
-    const scaledCorner: Coordinate = [
+    const scaledCorner: PixelCoordinate = [
       (currentCorner[0] * CAMERA_WIDTH) / width,
       (currentCorner[1] * CAMERA_HEIGHT) / height,
     ];
@@ -72,7 +72,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
           DISC_INNER_RADIUS) /
         BOARD_DIMENSIONS.y;
 
-      const paddedCorners: Coordinate[] = [
+      const paddedCorners: PixelCoordinate[] = [
         [
           newCorners[0][0] + discPaddingLeft,
           newCorners[0][1] + discPaddingBottom,
@@ -109,7 +109,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
       <Stage
         width={width}
         height={height}
-        onClick={(event) => {
+        onClick={(event: any) => {
           const stage = event.target.getStage();
           const pointer = stage?.getPointerPosition();
 
@@ -125,7 +125,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
             ]);
           }
         }}
-        onMouseMove={(event) => {
+        onMouseMove={(event: any) => {
           if (mouseDown.current) {
             const stage = event.target.getStage();
             const pointer = stage?.getPointerPosition();
@@ -145,7 +145,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
         }}
         onMouseUp={() => (mouseDown.current = false)}
         onMouseDown={() => (mouseDown.current = true)}
-        onWheel={(event) => {
+        onWheel={(event: any) => {
           const stage = event.target.getStage();
           const pointer = stage?.getPointerPosition();
 

@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { Coordinate, Disc, ShortCircuitGameState } from "../../types/types";
+import { Coordinate, Disc, ShortCircuitGameState, TeamColour } from "../../types/types";
 import { DISC_DIAMETER } from "../../constants/constants";
 import {
   calculateAverageDiscStates,
@@ -12,7 +12,16 @@ import { getZoneOfControl, testDiscPositions } from "./zoneOfControl";
 import { GAME_MODE } from "../../types/game-modes";
 
 const discState: ShortCircuitGameState = {
-  discs: [],
+  discs: [
+    {x: 123, y: 57, colour: TeamColour.BLUE},
+    {x: 200, y: 323, colour: TeamColour.BLUE},
+    {x: 240, y: 1100, colour: TeamColour.BLUE},
+    {x: 380, y: 90, colour: TeamColour.BLUE},
+    {x: 150, y: 220, colour: TeamColour.RED},
+    {x: 90, y: 600, colour: TeamColour.RED},
+    {x: 313, y: 1010, colour: TeamColour.RED},
+    {x: 370, y: 400, colour: TeamColour.RED},
+  ],
   shortCircuit: {
     blueDistance: undefined,
     redDistance: undefined,
@@ -28,10 +37,13 @@ const discState: ShortCircuitGameState = {
 export const createSocket = (server: HttpServer, gameModeService: GameModeService) => {
   const io = new Server(server);
   
-  getZoneOfControl(testDiscPositions)
+
+  discState.zoneOfControl = getZoneOfControl(discState.discs)
+  console.log(discState.zoneOfControl)
 
   io.on("connection", (socket) => {
     console.log("a user connected");
+    io.emit("new-state", discState);
 
     socket.on("disconnect", () => {
       console.log("user disconnected");
@@ -79,7 +91,7 @@ function sendState(newDiscsJson: string[], io: Server, gameModeService: GameMode
     } else {
       discState.zoneOfControl = getZoneOfControl(discState.discs);
     }
-    io.emit("short-circuit", discState);
+    io.emit("new-state", discState);
   } catch (e) {
     console.log(e);
   }

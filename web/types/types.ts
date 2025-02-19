@@ -53,3 +53,5 @@ export type Coordinate = {
     y: number
 }
 
+export type PixelCoordinate = [number, number]
+

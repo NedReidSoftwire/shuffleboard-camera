@@ -5,12 +5,6 @@ export const testDiscPositions: Disc[] = [
     {x: 123, y: 57, colour: TeamColour.BLUE},
     {x: 200, y: 589, colour: TeamColour.BLUE},
     {x: 300, y: 1097, colour: TeamColour.BLUE},
-    {x: 40, y: 40, colour: TeamColour.RED},
-    {x: 40, y: 45, colour: TeamColour.RED},
-    {x: 350, y: 10, colour: TeamColour.RED},
-    {x: 60, y: 86, colour: TeamColour.RED},
-    {x: 120, y: 300, colour: TeamColour.BLUE},
-    {x: 180, y: 800, colour: TeamColour.BLUE},
     {x: 240, y: 1100, colour: TeamColour.BLUE},
     {x: 380, y: 90, colour: TeamColour.BLUE},
     {x: 50, y: 220, colour: TeamColour.RED},
@@ -281,7 +275,6 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
                 }
             }
         }
-
 
         polygons.push({coordinates: polygon, colour})
     

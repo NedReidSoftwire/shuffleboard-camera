@@ -5,6 +5,7 @@ import {
   Disc,
   ShortCircuitGameState,
   ShortCircuitState,
+  ZoneOfControlState,
 } from "../../types/types.ts";
 import Calibrate from "./calibration/Calibrate.tsx";
 import GameModeSelect from "./game-mode/GameModeSelect.tsx";
@@ -20,6 +21,7 @@ function App() {
 
   const [testDiscs, setTestDiscs] = useState([] as Disc[]);
   const [shortCircuit, setShortCircuit] = useState<ShortCircuitState>();
+  const [zoneOfControl, setZoneOfControl] = useState<ZoneOfControlState>();
   const [calibrationImage, setCalibrationImage] = useState<string>();
   const calibrating = !!calibrationImage;
 
@@ -32,10 +34,12 @@ function App() {
     // socket.onAny((eventName, ...args) => {
     //     console.log(eventName)
     // })
-    socket.on("short-circuit", (gameState: ShortCircuitGameState) => {
+    socket.on("new-state", (gameState: ShortCircuitGameState) => {
       setTestDiscs(gameState.discs);
-      setShortCircuit(gameState.shortCircuit);
+      // setShortCircuit(gameState.shortCircuit);
+      setZoneOfControl(gameState.zoneOfControl)
     });
+
     socket.on("calibration-image", (calibrationImageData: string) => {
       console.log("calibrationImage", calibrationImageData);
       setCalibrationImage(calibrationImageData);
@@ -62,7 +66,7 @@ function App() {
       ) : (
         <>
           <GameModeSelect />
-          <BoardView discs={testDiscs} shortCircuit={shortCircuit} />
+          <BoardView discs={testDiscs} shortCircuit={shortCircuit} zoneOfControl={zoneOfControl} />
           {shortCircuit && (
             <div className="w-full grid grid-cols-12 h-32 bg-purple-500 border-t-8 border-amber-200">
               <div className="col-span-3 bg-blue-600 h-full p-4">
