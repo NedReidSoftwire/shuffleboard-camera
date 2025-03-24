@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { promisify } from "util";
 import { Coordinate, Disc, ShortCircuitGameState} from "../../types/types";
 import { DISC_DIAMETER } from "../../constants/constants";
 import {
@@ -11,7 +10,7 @@ import { getShortCircuitState } from "./shortCircuit";
 import { GameModeService } from "../services/game-mode-service";
 import { getZoneOfControl } from "./zoneOfControl";
 import { GAME_MODE } from "../../types/game-modes";
-import { exec } from "child_process";
+import {spawn} from "node:child_process";
 
 const discState: ShortCircuitGameState = {
   discs: [],
@@ -27,7 +26,7 @@ const discState: ShortCircuitGameState = {
   }
 }
 
-const execPromise = promisify(exec);
+
 
 export const createSocket = (server: HttpServer, gameModeService: GameModeService) => {
   const io = new Server(server);
@@ -59,7 +58,7 @@ export const createSocket = (server: HttpServer, gameModeService: GameModeServic
     );
 
     socket.on("update-code", async () => {
-      await execPromise('backend/gitpull.sh');
+      spawn('bash', ['backend/gitpull.sh'], {detached: true, stdio: "inherit"});
     })
   });
 };
