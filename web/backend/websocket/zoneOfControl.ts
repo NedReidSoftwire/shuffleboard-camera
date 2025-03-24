@@ -39,7 +39,7 @@ type IndexPair = {
 
 
 export const getDiscComparisonMidpointsAndVectors = (discPositions: DiscWithIndex[]): MidpointAndPpdVector[] => {
-    let midpoints: MidpointAndPpdVector[] = []
+    const midpoints: MidpointAndPpdVector[] = []
     const redDiscs = discPositions.filter((disc) => disc.colour === TeamColour.RED)
     const blueDiscs = discPositions.filter((disc) => disc.colour === TeamColour.BLUE)
     
@@ -195,12 +195,12 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
     const outerWalls = cornersOfTheBoard.map((corner) => corner.wallType)
 
     let lineSegmentsToCoverTwice = Object.keys(segmentNameToBoundaryMap).filter(name => !outerWalls.includes(name))
-    let lineSegmentsCovered: string[] = []
+    const lineSegmentsCovered: string[] = []
 
     let remainingCorners = [...cornersOfTheBoard]
 
     while (remainingCorners.length > 0 || lineSegmentsToCoverTwice.length > 0) {
-        let polygon: Coordinate[] = []
+        const polygon: Coordinate[] = []
         let colour: TeamColour | undefined 
 
         let currentSegmentName: string;
@@ -225,6 +225,7 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
                 let nextPointOnWall = segmentNameToBoundaryMap[currentSegmentName]?.find((segmentBoundary) => segmentBoundary.scf > currentPoint.scf) 
                 if (nextPointOnWall || runOutOfCorners) {
                     if (runOutOfCorners && (!nextPointOnWall || !lineSegmentsToCoverTwice.includes(nextPointOnWall.connectsTo) || direction == "ANTICLOCKWISE")) {
+                        console.log(nextPointOnWall, runOutOfCorners, lineSegmentsToCoverTwice, direction)
                         nextPointOnWall = segmentNameToBoundaryMap[currentSegmentName]?.sort(sortByScfNeg).find((segmentBoundary) => segmentBoundary.scf < currentPoint.scf) 
                         direction = "ANTICLOCKWISE"
                     } else {
@@ -232,6 +233,7 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
                     }
 
                     if (!nextPointOnWall) {
+                        console.log(currentPoint, polygon)
                         throw new Error("Bad 3")
                     }
 
@@ -277,7 +279,6 @@ const getPolygons = (segmentNameToBoundaryMap: Record<string, BoundaryPoint[]>) 
         }
 
         polygons.push({coordinates: polygon, colour})
-    
     }
     return polygons
 }
