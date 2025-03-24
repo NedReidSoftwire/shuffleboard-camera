@@ -10,7 +10,7 @@ import { getShortCircuitState } from "./shortCircuit";
 import { GameModeService } from "../services/game-mode-service";
 import { getZoneOfControl } from "./zoneOfControl";
 import { GAME_MODE } from "../../types/game-modes";
-import {spawn} from "node:child_process";
+import {spawn} from "child_process";
 
 const discState: ShortCircuitGameState = {
   discs: [],
