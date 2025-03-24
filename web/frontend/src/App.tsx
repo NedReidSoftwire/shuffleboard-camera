@@ -60,10 +60,16 @@ function App() {
           Shuffleboard Camera
         </div>
         <button
-            className="w-[1/3] h-full flex-1 bg-purple-600 text-white hover:bg-purple-800 text-2xl  text-center"
+            className="w-1/6 h-full bg-purple-600 text-white hover:bg-purple-800 text-2xl  text-center"
             onClick={calibrate}
         >
           Calibrate
+        </button>
+        <button
+            className="w-1/6 h-full  bg-red-500 text-white hover:bg-red-700 text-xl  text-center"
+            onClick={() => socket.emit("update-code")}
+        >
+          Refresh Code
         </button>
       </div>
 

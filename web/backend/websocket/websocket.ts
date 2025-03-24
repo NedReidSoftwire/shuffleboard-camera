@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
+import { promisify } from "util";
 import { Coordinate, Disc, ShortCircuitGameState} from "../../types/types";
 import { DISC_DIAMETER } from "../../constants/constants";
 import {
@@ -10,6 +11,7 @@ import { getShortCircuitState } from "./shortCircuit";
 import { GameModeService } from "../services/game-mode-service";
 import { getZoneOfControl } from "./zoneOfControl";
 import { GAME_MODE } from "../../types/game-modes";
+import { exec } from "child_process";
 
 const discState: ShortCircuitGameState = {
   discs: [],
@@ -24,6 +26,8 @@ const discState: ShortCircuitGameState = {
     polygons: []
   }
 }
+
+const execPromise = promisify(exec);
 
 export const createSocket = (server: HttpServer, gameModeService: GameModeService) => {
   const io = new Server(server);
@@ -49,9 +53,14 @@ export const createSocket = (server: HttpServer, gameModeService: GameModeServic
     socket.on("send-calibration-image", (calibrationData: string) =>
       io.emit("calibration-image", calibrationData),
     );
+
     socket.on("send-calibration-coordinates", (calibrationData: Coordinate[]) =>
       io.emit("update-calibration-coordinates", calibrationData),
     );
+
+    socket.on("update-code", async () => {
+      await execPromise('backend/gitpull.sh');
+    })
   });
 };
 
