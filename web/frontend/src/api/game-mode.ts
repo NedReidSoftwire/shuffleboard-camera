@@ -7,6 +7,6 @@ export const updateGameMode = async (newGameMode: GAME_MODE, setGameMode: (gm: G
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ newGameMode }),
+    body: JSON.stringify({ gameMode: newGameMode }),
   });
 };
