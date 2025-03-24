@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { Coordinate, Disc, ShortCircuitGameState, TeamColour } from "../../types/types";
+import { Coordinate, Disc, ShortCircuitGameState} from "../../types/types";
 import { DISC_DIAMETER } from "../../constants/constants";
 import {
   calculateAverageDiscStates,

@@ -9,8 +9,7 @@ import {
   BOARD_DIMENSIONS,
   DISC_DIAMETER,
 } from "../../../constants/constants.ts";
-import { fill } from "three/src/extras/TextureUtils.js";
-import { color, Shape } from "three/webgpu";
+import { Shape } from "three/webgpu";
 
 const BOARD_MODEL_LENGTH = 2.25;
 const BOARD_MODEL_HEIGHT = 1.4;
@@ -23,7 +22,6 @@ const boardScale = [
   (BOARD_DIMENSIONS.x * GLOBAL_SCALE) / BOARD_MODEL_HEIGHT,
 ];
 const discScale = (DISC_DIAMETER * GLOBAL_SCALE) / DISC_MODEL_DIAMETER;
-
 
 const FilledPolygon3D = ({ coordinates, colour, height = 0.1 }: any) => {
   const shape = useMemo(() => {
@@ -101,7 +99,7 @@ const BoardView = ({ discs, shortCircuit, zoneOfControl }: BoardViewProps) => {
   const gameWorldDiscs = discs.map(realToGameWorldMapping);
 
   return (
-    <div className="h-96 w-[144]">
+    <div className="h-[75vh] w-[144]">
       <Canvas>
         <FixedCamera />
         <Suspense fallback={null}>

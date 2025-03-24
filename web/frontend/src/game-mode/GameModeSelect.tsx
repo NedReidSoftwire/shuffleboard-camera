@@ -1,21 +1,28 @@
 import { GAME_MODE } from "../../../types/game-modes";
-import { setGameMode } from "../api/game-mode";
+import {updateGameMode} from "../api/game-mode";
 
-const GameModeSelect = () => {
+const GameModeSelect = ({gameMode, setGameMode}: {gameMode: string, setGameMode: (gm: GAME_MODE) => void}) => {
   return (
-    <div>
+    <div className="flex flex-1 h-full">
       <button
-        className="w-full bg-green-600 text-white hover:bg-green-800 text-2xl p-4 text-center"
+          className={`w-1/6 flex-1 text-white text-l px-4 h-full text-center ${
+              gameMode === GAME_MODE.SHORT_CIRCUIT
+                  ? "bg-green-800 font-bold" // Active state
+                  : "bg-green-600 hover:bg-green-800"
+          }`}
         onClick={async () => {
-          await setGameMode(GAME_MODE.SHORT_CIRCUIT);
+          await updateGameMode(GAME_MODE.SHORT_CIRCUIT, setGameMode);
         }}
-      >
-        SHORT CIRCUIT
+      >SHORT CIRCUIT
       </button>
       <button
-        className="w-full bg-blue-600 text-white hover:bg-blue-800 text-2xl p-4 text-center"
+        className={`w-1/6 flex-1 text-white text-l px-4 h-full text-center ${
+          gameMode === GAME_MODE.ZONE_OF_CONTROL
+              ? "bg-blue-800 font-bold" // Active state
+              : "bg-blue-600 hover:bg-blue-800"
+        }`}
         onClick={async () => {
-          await setGameMode(GAME_MODE.ZONE_OF_CONTROL);
+          await updateGameMode(GAME_MODE.ZONE_OF_CONTROL, setGameMode);
         }}
       >
         ZONE OF CONTROL

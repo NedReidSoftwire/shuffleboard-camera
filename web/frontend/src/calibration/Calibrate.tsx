@@ -94,7 +94,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[90vh]">
       <div className="flex">
         <div className="font-bold text-2xl p-4 text-center">
           Calibrate the {calibrationSteps[currentStep]} corner

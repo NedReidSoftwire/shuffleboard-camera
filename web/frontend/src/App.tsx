@@ -1,14 +1,10 @@
 import BoardView from "./visualisation/BoardView.tsx";
-import { io } from "socket.io-client";
-import { useEffect, useMemo, useState } from "react";
-import {
-  Disc,
-  ShortCircuitGameState,
-  ShortCircuitState,
-  ZoneOfControlState,
-} from "../../types/types.ts";
+import {io} from "socket.io-client";
+import {useEffect, useMemo, useState} from "react";
+import {Disc, ShortCircuitGameState, ShortCircuitState, ZoneOfControlState,} from "../../types/types.ts";
 import Calibrate from "./calibration/Calibrate.tsx";
 import GameModeSelect from "./game-mode/GameModeSelect.tsx";
+import {GAME_MODE} from "../../types/game-modes.ts";
 
 function App() {
   const socket = useMemo(
@@ -20,6 +16,7 @@ function App() {
   );
 
   const [testDiscs, setTestDiscs] = useState([] as Disc[]);
+  const [gameMode, setGameMode] = useState(GAME_MODE.SHORT_CIRCUIT)
   const [shortCircuit, setShortCircuit] = useState<ShortCircuitState>();
   const [zoneOfControl, setZoneOfControl] = useState<ZoneOfControlState>();
   const [calibrationImage, setCalibrationImage] = useState<string>();
@@ -36,8 +33,11 @@ function App() {
     // })
     socket.on("new-state", (gameState: ShortCircuitGameState) => {
       setTestDiscs(gameState.discs);
-      // setShortCircuit(gameState.shortCircuit);
-      setZoneOfControl(gameState.zoneOfControl)
+      if (gameState.gameMode === GAME_MODE.SHORT_CIRCUIT) {
+        setZoneOfControl(gameState.zoneOfControl)
+      } else {
+        setShortCircuit(gameState.shortCircuit);
+      }
     });
 
     socket.on("calibration-image", (calibrationImageData: string) => {
@@ -54,9 +54,19 @@ function App() {
 
   return (
     <div className="w-full">
-      <div className="font-bold text-4xl p-4 text-center">
-        Shuffleboard Camera
+      <div className="flex flex-row items-center justify-between h-[10vh]">
+        <GameModeSelect gameMode={gameMode} setGameMode={setGameMode}/>
+        <div className="w-1/3 h-full flex-1 flex items-center justify-center font-bold text-2xl p-2 text-center">
+          Shuffleboard Camera
+        </div>
+        <button
+            className="w-[1/3] h-full flex-1 bg-purple-600 text-white hover:bg-purple-800 text-2xl  text-center"
+            onClick={calibrate}
+        >
+          Calibrate
+        </button>
       </div>
+
       {calibrating ? (
         <Calibrate
           image={calibrationImage}
@@ -65,10 +75,9 @@ function App() {
         />
       ) : (
         <>
-          <GameModeSelect />
           <BoardView discs={testDiscs} shortCircuit={shortCircuit} zoneOfControl={zoneOfControl} />
-          {shortCircuit && (
-            <div className="w-full grid grid-cols-12 h-32 bg-purple-500 border-t-8 border-amber-200">
+          {shortCircuit && gameMode === GAME_MODE.SHORT_CIRCUIT && (
+            <div className="w-full grid grid-cols-12 h-[15vh] bg-purple-500 border-t-8 border-amber-200">
               <div className="col-span-3 bg-blue-600 h-full p-4">
                 <div className="text-lg font-semibold text-white">
                   Blue Distance:
@@ -101,12 +110,7 @@ function App() {
               </div>
             </div>
           )}
-          <button
-            className="w-full bg-purple-600 text-white hover:bg-purple-800 text-2xl p-4 text-center"
-            onClick={calibrate}
-          >
-            Calibrate
-          </button>
+
         </>
       )}
     </div>
