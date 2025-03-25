@@ -18,7 +18,7 @@ def capture_image(camera_port):
         cam.release()
         cam = cv2.VideoCapture(camera_port)
         # Camera needs time to start up
-        time.sleep(0.1)
+        time.sleep(1)
 
     result, image = cam.read()
     if result:
