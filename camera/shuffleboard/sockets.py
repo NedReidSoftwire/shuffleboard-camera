@@ -24,19 +24,19 @@ config_yaml = yaml.safe_load(config_file)
 if config_yaml is None:
     config_yaml = {}
 config_file.close()
+global board_coordinates, camera_port
+if config_yaml.get('board_coordinates'):
+    board_coordinates = config_yaml.get('board_coordinates')
+else:
+    board_coordinates = None
 
+if config_yaml.get('camera_port'):
+    camera_port = config_yaml.get('camera_port')
+else:
+    camera_port = 0
 
 async def send_state_periodically():
-    global board_coordinates, camera_port
-    if config_yaml.get('board_coordinates'):
-        board_coordinates = config_yaml.get('board_coordinates')
-    else:
-        board_coordinates = None
 
-    if config_yaml.get('camera_port'):
-        camera_port = config_yaml.get('camera_port')
-    else:
-        camera_port = 0
 
     def update_calibration_coordinates(coordinates):
         global board_coordinates
@@ -47,7 +47,7 @@ async def send_state_periodically():
         config_file.close()
 
         logger.info(f'New calibration coordinates: {coordinates}')
-        visualise_calibration_coordinates(coordinates)
+        visualise_calibration_coordinates(coordinates, camera_port)
 
     try:
         await sio.connect("http://localhost:3000")
@@ -72,12 +72,20 @@ async def send_state_periodically():
         await sio.disconnect()
         logger.info("Camera service disconnected from web service")
 
-async def send_calibration_image():
+async def send_calibration_image(new_camera_port=None):
+    global camera_port
+    if new_camera_port is not None:
+        camera_port = new_camera_port
+        config_yaml['camera_port'] = camera_port
+        config_file = open('config.yaml', 'w')
+        yaml.dump(config_yaml, config_file)
+        config_file.close()
+
     try:
         logger.info("Getting encoded calibration image...")
-        jpg_string = get_calibration_image()
+        jpg_string = get_calibration_image(camera_port)
 
-        await sio.emit("send-calibration-image", jpg_string)
+        await sio.emit("send-calibration-image", jpg_string, camera_port)
     except Exception as e:
         logger.error(f"An error occurred: {e}")
 

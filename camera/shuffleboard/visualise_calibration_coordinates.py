@@ -2,11 +2,11 @@ import cv2
 
 from shuffleboard.capture import capture_image
 
-def visualise_calibration_coordinates(coordinates):
+def visualise_calibration_coordinates(coordinates, camera_port):
     if len(coordinates) != 4:
         raise ValueError("Coordinates must be a list of 4 tuples.")
 
-    img = capture_image()
+    img = capture_image(camera_port)
 
     pts = [(int(x), int(y)) for x, y in coordinates]
 

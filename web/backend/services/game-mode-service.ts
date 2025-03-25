@@ -1,4 +1,4 @@
-import { GAME_MODE } from '../../types/game-modes';
+import { GAME_MODE } from "../../types/game-modes";
 
 export class GameModeService {
   private gameMode: GAME_MODE;

@@ -1,10 +1,15 @@
 import BoardView from "./visualisation/BoardView.tsx";
-import {io} from "socket.io-client";
-import {useEffect, useMemo, useState} from "react";
-import {Disc, ShortCircuitGameState, ShortCircuitState, ZoneOfControlState,} from "../../types/types.ts";
+import { io } from "socket.io-client";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Disc,
+  ShortCircuitGameState,
+  ShortCircuitState,
+  ZoneOfControlState,
+} from "../../types/types.ts";
 import Calibrate from "./calibration/Calibrate.tsx";
 import GameModeSelect from "./game-mode/GameModeSelect.tsx";
-import {GAME_MODE} from "../../types/game-modes.ts";
+import { GAME_MODE } from "../../types/game-modes.ts";
 
 function App() {
   const socket = useMemo(
@@ -12,14 +17,15 @@ function App() {
       io({
         autoConnect: false,
       }),
-    []
+    [],
   );
 
   const [testDiscs, setTestDiscs] = useState([] as Disc[]);
-  const [gameMode, setGameMode] = useState(GAME_MODE.SHORT_CIRCUIT)
+  const [gameMode, setGameMode] = useState(GAME_MODE.SHORT_CIRCUIT);
   const [shortCircuit, setShortCircuit] = useState<ShortCircuitState>();
   const [zoneOfControl, setZoneOfControl] = useState<ZoneOfControlState>();
   const [calibrationImage, setCalibrationImage] = useState<string>();
+  const [cameraPort, setCameraPort] = useState<number>();
   const calibrating = !!calibrationImage;
 
   useEffect(() => {
@@ -34,16 +40,20 @@ function App() {
     socket.on("new-state", (gameState: ShortCircuitGameState) => {
       setTestDiscs(gameState.discs);
       if (gameState.gameMode === GAME_MODE.SHORT_CIRCUIT) {
-        setZoneOfControl(gameState.zoneOfControl)
+        setZoneOfControl(gameState.zoneOfControl);
       } else {
         setShortCircuit(gameState.shortCircuit);
       }
     });
 
-    socket.on("calibration-image", (calibrationImageData: string) => {
-      console.log("calibrationImage", calibrationImageData);
-      setCalibrationImage(calibrationImageData);
-    });
+    socket.on(
+      "calibration-image",
+      (calibrationImageData: string, port: number) => {
+        console.log("calibrationImage", calibrationImageData);
+        setCalibrationImage(calibrationImageData);
+        setCameraPort(port);
+      },
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -55,19 +65,19 @@ function App() {
   return (
     <div className="w-full">
       <div className="flex flex-row items-center justify-between h-[10vh]">
-        <GameModeSelect gameMode={gameMode} setGameMode={setGameMode}/>
+        <GameModeSelect gameMode={gameMode} setGameMode={setGameMode} />
         <div className="w-1/3 h-full flex-1 flex items-center justify-center font-bold text-2xl p-2 text-center">
           Shuffleboard Camera
         </div>
         <button
-            className="w-1/6 h-full bg-purple-600 text-white hover:bg-purple-800 text-2xl  text-center"
-            onClick={calibrate}
+          className="w-1/6 h-full bg-purple-600 text-white hover:bg-purple-800 text-2xl  text-center"
+          onClick={calibrate}
         >
           Calibrate
         </button>
         <button
-            className="w-1/6 h-full  bg-red-500 text-white hover:bg-red-700 text-xl  text-center"
-            onClick={() => socket.emit("update-code")}
+          className="w-1/6 h-full  bg-red-500 text-white hover:bg-red-700 text-xl  text-center"
+          onClick={() => socket.emit("update-code")}
         >
           Refresh Code
         </button>
@@ -76,12 +86,17 @@ function App() {
       {calibrating ? (
         <Calibrate
           image={calibrationImage}
+          cameraPort={cameraPort}
           socket={socket}
           onComplete={() => setCalibrationImage(undefined)}
         />
       ) : (
         <>
-          <BoardView discs={testDiscs} shortCircuit={shortCircuit} zoneOfControl={zoneOfControl} />
+          <BoardView
+            discs={testDiscs}
+            shortCircuit={shortCircuit}
+            zoneOfControl={zoneOfControl}
+          />
           {shortCircuit && gameMode === GAME_MODE.SHORT_CIRCUIT && (
             <div className="w-full grid grid-cols-12 h-[15vh] bg-purple-500 border-t-8 border-amber-200">
               <div className="col-span-3 bg-blue-600 h-full p-4">
@@ -116,7 +131,6 @@ function App() {
               </div>
             </div>
           )}
-
         </>
       )}
     </div>

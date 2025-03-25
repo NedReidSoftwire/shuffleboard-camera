@@ -6,9 +6,9 @@ from shuffleboard.capture import capture_image
 
 logger = setup_logger(__file__)
 
-def get_calibration_image():
+def get_calibration_image(camera_port):
     try:
-        img = capture_image()
+        img = capture_image(camera_port)
         # img = cv2.imread('capture.png', cv2.IMREAD_COLOR)
         _, buffer = cv2.imencode('.jpg', img)
         jpg_string = base64.b64encode(buffer).decode()

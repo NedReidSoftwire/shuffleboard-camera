@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { Coordinate, Disc, ShortCircuitGameState} from "../../types/types";
+import { Coordinate, Disc, ShortCircuitGameState } from "../../types/types";
 import { DISC_DIAMETER } from "../../constants/constants";
 import {
   calculateAverageDiscStates,
@@ -10,7 +10,7 @@ import { getShortCircuitState } from "./shortCircuit";
 import { GameModeService } from "../services/game-mode-service";
 import { getZoneOfControl } from "./zoneOfControl";
 import { GAME_MODE } from "../../types/game-modes";
-import {spawn} from "child_process";
+import { spawn } from "child_process";
 
 const discState: ShortCircuitGameState = {
   discs: [],
@@ -22,13 +22,14 @@ const discState: ShortCircuitGameState = {
   zoneOfControl: {
     redPercentage: undefined,
     bluePercentage: undefined,
-    polygons: []
-  }
-}
+    polygons: [],
+  },
+};
 
-
-
-export const createSocket = (server: HttpServer, gameModeService: GameModeService) => {
+export const createSocket = (
+  server: HttpServer,
+  gameModeService: GameModeService,
+) => {
   const io = new Server(server);
 
   io.on("connection", (socket) => {
@@ -43,14 +44,16 @@ export const createSocket = (server: HttpServer, gameModeService: GameModeServic
       sendState(newDiscJson, io, gameModeService),
     );
 
-    socket.on("request-calibration-image", () => {
+    socket.on("request-calibration-image", (newCameraPort?: number) => {
       console.log("getting calibration image");
 
-      io.emit("get-calibration-image");
+      io.emit("get-calibration-image", newCameraPort);
     });
 
-    socket.on("send-calibration-image", (calibrationData: string) =>
-      io.emit("calibration-image", calibrationData),
+    socket.on(
+      "send-calibration-image",
+      (calibrationData: string, cameraPort: number) =>
+        io.emit("calibration-image", calibrationData, cameraPort),
     );
 
     socket.on("send-calibration-coordinates", (calibrationData: Coordinate[]) =>
@@ -58,8 +61,11 @@ export const createSocket = (server: HttpServer, gameModeService: GameModeServic
     );
 
     socket.on("update-code", async () => {
-      spawn('bash', ['backend/gitpull.sh'], {detached: true, stdio: "inherit"});
-    })
+      spawn("bash", ["backend/gitpull.sh"], {
+        detached: true,
+        stdio: "inherit",
+      });
+    });
   });
 };
 
@@ -73,7 +79,11 @@ export const distBetweenTwoDiscs = (disc1: Disc, disc2: Disc) => {
   return Math.max(distBetweenTwoDiscCenters(disc1, disc2) - DISC_DIAMETER, 0);
 };
 
-function sendState(newDiscsJson: string[], io: Server, gameModeService: GameModeService) {
+function sendState(
+  newDiscsJson: string[],
+  io: Server,
+  gameModeService: GameModeService,
+) {
   try {
     const newDiscs: Disc[] = newDiscsJson.map((jsonString) =>
       JSON.parse(jsonString),

@@ -14,6 +14,7 @@ type CalibrateProps = {
   image: string;
   socket: Socket;
   onComplete: () => void;
+  cameraPort: number;
 };
 
 const pixelDistanceBetween = (a: number[], b: PixelCoordinate) => {
@@ -23,7 +24,7 @@ const pixelDistanceBetween = (a: number[], b: PixelCoordinate) => {
 const clamp = (min: number, max: number, value: number) =>
   Math.min(max, Math.max(value, min));
 
-function Calibrate({ image, socket, onComplete }: CalibrateProps) {
+function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
   const calibrationSteps = [
     "Bottom left",
     "Top left",
@@ -33,6 +34,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   const [corners, setCorners] = useState<PixelCoordinate[]>([]);
   const currentStep = corners.length;
   const [currentCorner, setCurrentCorner] = useState<PixelCoordinate>([0, 0]);
+  const [newPort, setNewPort] = useState(cameraPort);
   const mouseDown = useRef(false);
   const width = window.innerWidth;
   const height = (CAMERA_HEIGHT / CAMERA_WIDTH) * width;
@@ -45,6 +47,10 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   const submitCalibration = async (allCorners: PixelCoordinate[]) => {
     socket.emit("send-calibration-coordinates", allCorners);
     onComplete();
+  };
+
+  const changePort = () => {
+    socket.emit("request-calibration-image", newPort);
   };
 
   const addCorner = () => {
@@ -95,7 +101,23 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
 
   return (
     <div className="w-full h-[90vh]">
-      <div className="flex">
+      <div className="flex bg-purple-200">
+        <div className="font-bold text-2xl p-4 text-center">
+          Current camera port
+        </div>
+        <input
+          type="number"
+          value={newPort}
+          onChange={(event) => setNewPort(Number(event.target.value ?? 0))}
+        />
+        <button
+          className="font-bold text-2xl p-4 text-center bg-purple-300 hover:bg-purple-500"
+          onClick={changePort}
+        >
+          Confirm
+        </button>
+      </div>
+      <div className="flex bg-purple-300">
         <div className="font-bold text-2xl p-4 text-center">
           Calibrate the {calibrationSteps[currentStep]} corner
         </div>
@@ -109,7 +131,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
       <Stage
         width={width}
         height={height}
-        onClick={(event: any) => {
+        onClick={(event) => {
           const stage = event.target.getStage();
           const pointer = stage?.getPointerPosition();
 
@@ -125,7 +147,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
             ]);
           }
         }}
-        onMouseMove={(event: any) => {
+        onMouseMove={(event) => {
           if (mouseDown.current) {
             const stage = event.target.getStage();
             const pointer = stage?.getPointerPosition();
@@ -145,7 +167,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
         }}
         onMouseUp={() => (mouseDown.current = false)}
         onMouseDown={() => (mouseDown.current = true)}
-        onWheel={(event: any) => {
+        onWheel={(event) => {
           const stage = event.target.getStage();
           const pointer = stage?.getPointerPosition();
 
