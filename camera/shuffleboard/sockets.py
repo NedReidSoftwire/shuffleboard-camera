@@ -1,3 +1,5 @@
+import traceback
+
 import socketio
 import asyncio
 import base64
@@ -31,9 +33,18 @@ else:
     board_coordinates = None
 
 if config_yaml.get('camera_port'):
-    camera_port = config_yaml.get('camera_port')
+    camera_port = int(config_yaml.get('camera_port'))
 else:
     camera_port = 0
+
+def set_camera_port(new_port):
+    global camera_port
+    camera_port = int(new_port)
+    config_yaml['camera_port'] = camera_port
+    config_file = open('config.yaml', 'w')
+    yaml.dump(config_yaml, config_file)
+    config_file.close()
+
 
 async def send_state_periodically():
 
@@ -74,20 +85,19 @@ async def send_state_periodically():
 
 async def send_calibration_image(new_camera_port=None):
     global camera_port
+    old_camera_port = camera_port
     if new_camera_port is not None:
-        camera_port = new_camera_port
-        config_yaml['camera_port'] = camera_port
-        config_file = open('config.yaml', 'w')
-        yaml.dump(config_yaml, config_file)
-        config_file.close()
+        set_camera_port(new_camera_port)
 
     try:
         logger.info("Getting encoded calibration image...")
         jpg_string = get_calibration_image(camera_port)
-
-        await sio.emit("send-calibration-image", jpg_string, camera_port)
+        await sio.emit("send-calibration-image", (jpg_string, camera_port))
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}  {traceback.format_exc()}")
+        if new_camera_port is not None:
+            logger.info("Reverting camera port...")
+            set_camera_port(old_camera_port)
 
 if __name__ == "__main__":
     asyncio.run(send_state_periodically())

@@ -1,5 +1,5 @@
 import time
-
+import traceback
 import cv2
 
 from shuffleboard.base_logger import setup_logger
