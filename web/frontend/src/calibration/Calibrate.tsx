@@ -43,7 +43,7 @@ function Calibrate({ image, socket, onComplete }: CalibrateProps) {
   }, [currentCorner]);
 
   const submitCalibration = async (allCorners: PixelCoordinate[]) => {
-    socket.emit("send-calibration-PixelCoordinates", allCorners);
+    socket.emit("send-calibration-coordinates", allCorners);
     onComplete();
   };
 
