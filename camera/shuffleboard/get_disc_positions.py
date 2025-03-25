@@ -8,6 +8,7 @@ from shuffleboard.base_logger import setup_logger
 from shuffleboard.capture import capture_image
 from shuffleboard.get_colour_masks import get_red_mask, get_blue_mask
 from shuffleboard.image_utils import get_binary_thresholded_img
+import traceback
 
 logger = setup_logger(__file__)
 
@@ -77,20 +78,21 @@ def __get_discs_by_colour(img_bgr, colour):
         debug_img = img_bgr.copy()
 
     discs = []
-    for x, y, radius in circles[0, :]:
-        # NOTE: At present, the camera positioning means the shot only contains
-        # the right half of the table. Additionally, the frontend only supports
-        # half of a table. This means that the y-axis must start at the end of
-        # the table, which is the opposite of the y-axis of the shot.
-        # Therefore, we must 'flip' this y-axis.
-        flipped_y = surface_dimensions[1] - y.item()
+    if len(circles) > 0:
+        for x, y, radius in circles[0, :]:
+            # NOTE: At present, the camera positioning means the shot only contains
+            # the right half of the table. Additionally, the frontend only supports
+            # half of a table. This means that the y-axis must start at the end of
+            # the table, which is the opposite of the y-axis of the shot.
+            # Therefore, we must 'flip' this y-axis.
+            flipped_y = surface_dimensions[1] - y.item()
 
-        discs.append(Disc(x=x.item(), y=flipped_y, colour=colour))
+            discs.append(Disc(x=x.item(), y=flipped_y, colour=colour))
 
-        if DEBUG:
-            center = (x, y)
-            cv2.circle(debug_img, center, radius, colour_rgb, 5)
-            cv2.circle(debug_img, center, 8, colour_rgb, -1)
+            if DEBUG:
+                center = (x, y)
+                cv2.circle(debug_img, center, radius, colour_rgb, 5)
+                cv2.circle(debug_img, center, 8, colour_rgb, -1)
     
     if DEBUG:
         cv2.imwrite(f'debug_detections_{colour.value}.png', debug_img)
@@ -127,7 +129,7 @@ def get_discs(img, board_coordinates):
 
         return all_discs
     except Exception as e:
-        logger.error(f"An error occurred while getting the discs: {e}")
+        logger.error(f"An error occurred while getting the discs: {e} {traceback.format_exc()}")
         return []
 
 if __name__ == '__main__':
