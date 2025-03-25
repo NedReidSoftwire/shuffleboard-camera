@@ -4,11 +4,9 @@ from shuffleboard.base_logger import setup_logger
 
 logger = setup_logger(__file__)
 
-CAMERA_PORT = 0
+def capture_image(camera_port):
+    cam = cv2.VideoCapture(camera_port)
 
-cam = cv2.VideoCapture(CAMERA_PORT) 
-
-def capture_image(): 
     result, image = cam.read()
     if result: 
         return image 

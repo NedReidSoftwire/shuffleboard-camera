@@ -2,6 +2,8 @@ import socketio
 import asyncio
 import base64
 
+import yaml
+
 from shuffleboard.base_logger import setup_logger
 from shuffleboard.capture import capture_image
 from shuffleboard.get_calibration_image import get_calibration_image
@@ -16,13 +18,33 @@ SLEEP_DURATION = 1 / UPDATES_PER_SECOND
 
 sio = socketio.AsyncClient()
 
+open('config.yaml', 'a').close()
+config_file = open('config.yaml', 'r')
+config_yaml = yaml.safe_load(config_file)
+if config_yaml is None:
+    config_yaml = {}
+config_file.close()
+
+
 async def send_state_periodically():
-    global board_coordinates
-    board_coordinates = None
+    global board_coordinates, camera_port
+    if config_yaml.get('board_coordinates'):
+        board_coordinates = config_yaml.get('board_coordinates')
+    else:
+        board_coordinates = None
+
+    if config_yaml.get('camera_port'):
+        camera_port = config_yaml.get('camera_port')
+    else:
+        camera_port = 0
 
     def update_calibration_coordinates(coordinates):
         global board_coordinates
         board_coordinates = coordinates
+        config_file = open('config.yaml', 'w')
+        config_yaml['board_coordinates'] = board_coordinates
+        yaml.dump(config_yaml, config_file)
+        config_file.close()
 
         logger.info(f'New calibration coordinates: {coordinates}')
         visualise_calibration_coordinates(coordinates)
@@ -37,7 +59,7 @@ async def send_state_periodically():
 
         while True:
             if board_coordinates is not None:
-                img = capture_image()
+                img = capture_image(camera_port)
                 game_state = get_discs(img, board_coordinates)
                 game_state_json = [disc.to_json() for disc in game_state]
                 
