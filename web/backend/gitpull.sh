@@ -1,21 +1,14 @@
 #!/bin/bash
 
-git pull
-
-# Kill process using port 3000
-PORT=3000
-PID=$(lsof -ti:$PORT)
-
-if [ -n "$PID" ]; then
-  echo "Killing process on port $PORT (PID: $PID)..."
-  kill -9 $PID
-  sleep 2 # Give it a moment to release the port
-else
-  echo "No process found on port $PORT."
-fi
+cd ~/shuffleboard-camera/web
 
 # Pull latest changes
-git pull
+git fetch
+git reset --hard origin/main
+
+pm2 restart camera || pm2 start backend/start_camera.sh --name "camera"
 
 # Start the application
-npm run start
+pm2 restart backend || pm2 start npm --name "backend" -- start
+
+pm2 save
