@@ -31,8 +31,11 @@ export const getZoneOfControl = (discPositions: Disc[]): ZoneOfControlState => {
     discsWithIndices,
   );
   const polygons = getPolygons(boundaryPoints);
+  const { red, blue } = calculateControlPercentages(polygons);
   return {
     polygons: polygons,
+    redPercentage: red,
+    bluePercentage: blue,
   };
 };
 
@@ -467,4 +470,39 @@ const getPolygons = (
     polygons.push({ coordinates: polygon, colour });
   }
   return polygons;
+};
+
+const calculatePolygonArea = (coordinates: Coordinate[]): number => {
+  let area = 0;
+  const n = coordinates.length;
+  
+  if (n < 3) return 0;
+
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    area += coordinates[i].x * coordinates[j].y;
+    area -= coordinates[j].x * coordinates[i].y;
+  }
+
+  return Math.abs(area) / 2;
+};
+
+const calculateControlPercentages = (polygons: Polygon[]): { blue: number, red: number } => {
+  const totalBoardArea = width * height;
+  let blueArea = 0;
+  let redArea = 0;
+
+  polygons.forEach(polygon => {
+    const area = calculatePolygonArea(polygon.coordinates);
+    if (polygon.colour === TeamColour.BLUE) {
+      blueArea += area;
+    } else if (polygon.colour === TeamColour.RED) {
+      redArea += area;
+    }
+  });
+
+  return {
+    blue: Math.round((blueArea / totalBoardArea) * 1000) / 10,
+    red: Math.round((redArea / totalBoardArea) * 1000) / 10,
+  };
 };
