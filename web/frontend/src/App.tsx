@@ -134,6 +134,34 @@ function App() {
               </div>
             </div>
           )}
+          {zoneOfControl && gameMode === GAME_MODE.ZONE_OF_CONTROL && (
+            <div className="w-full grid grid-cols-12 h-[15vh] bg-purple-500 border-t-8 border-amber-200">
+              <div className="col-span-3 bg-blue-600 h-full p-4">
+                <div className="text-lg font-semibold text-white">
+                  Blue territory:
+                </div>
+                <div className="text-4xl font-semibold text-white">
+                  {zoneOfControl.bluePercentage ?? 0}%
+                </div>
+              </div>
+              <div className="col-span-6 bg-purple-300 h-full text-center">
+                <div className="text-lg font-semibold text-white">
+                  current winner:
+                </div>
+                <div className="text-5xl font-semibold text-white">
+                  {(zoneOfControl.bluePercentage ?? 0) > (zoneOfControl.redPercentage?? 0)? 'Blue': 'Red'}
+                </div>
+              </div>
+              <div className="col-span-3 bg-red-500 h-full p-4 text-right">
+                <div className="text-lg font-semibold text-white">
+                  Red Territory:
+                </div>
+                <div className="text-4xl font-semibold text-white">
+                  {zoneOfControl.bluePercentage ?? 0}%
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
