@@ -98,6 +98,7 @@ function App() {
             discs={testDiscs}
             shortCircuit={shortCircuit}
             zoneOfControl={zoneOfControl}
+            gameMode={gameMode}
           />
           {shortCircuit && gameMode === GAME_MODE.SHORT_CIRCUIT && (
             <div className="w-full grid grid-cols-12 h-[15vh] bg-purple-500 border-t-8 border-amber-200">
