@@ -41,8 +41,10 @@ function App() {
       setTestDiscs(gameState.discs);
       if (gameState.gameMode === GAME_MODE.SHORT_CIRCUIT) {
         setZoneOfControl(gameState.zoneOfControl);
+        setShortCircuit(undefined)
       } else {
         setShortCircuit(gameState.shortCircuit);
+        setZoneOfControl(undefined)
       }
     });
 

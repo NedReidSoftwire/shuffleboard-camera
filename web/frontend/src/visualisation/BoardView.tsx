@@ -16,6 +16,7 @@ import {
   DISC_DIAMETER,
 } from "../../../constants/constants.ts";
 import { Shape } from "three/webgpu";
+import {GAME_MODE} from "../../../types/game-modes.ts";
 
 const BOARD_MODEL_LENGTH = 2.25;
 const BOARD_MODEL_HEIGHT = 1.4;
@@ -95,11 +96,12 @@ const useObj = (src: string) => {
 
 type BoardViewProps = {
   discs: Disc[];
+  gameMode: GAME_MODE
   shortCircuit?: ShortCircuitState;
   zoneOfControl?: ZoneOfControlState;
 };
 
-const BoardView = ({ discs, shortCircuit, zoneOfControl }: BoardViewProps) => {
+const BoardView = ({ discs, shortCircuit, zoneOfControl, gameMode }: BoardViewProps) => {
   const redDisc = useObj("/models/red_disc");
   const blueDisc = useObj("/models/blue_disc");
   const board = useObj("/models/board");
@@ -123,7 +125,7 @@ const BoardView = ({ discs, shortCircuit, zoneOfControl }: BoardViewProps) => {
             />
           ))}
           <primitive object={board} position={[0, 0, 0]} scale={boardScale} />
-          {zoneOfControl &&
+          {zoneOfControl && gameMode === GAME_MODE.ZONE_OF_CONTROL &&
             zoneOfControl.polygons.map((poly, index) => (
               <FilledPolygon3D
                 key={index}
@@ -133,7 +135,7 @@ const BoardView = ({ discs, shortCircuit, zoneOfControl }: BoardViewProps) => {
               />
             ))}
 
-          {shortCircuit && shortCircuit.redDistance && (
+          {shortCircuit && gameMode === GAME_MODE.ZONE_OF_CONTROL && shortCircuit.redDistance && (
             <Line
               points={[
                 discPos(gameWorldDiscs[shortCircuit.redDistance.disc1]),
@@ -143,7 +145,7 @@ const BoardView = ({ discs, shortCircuit, zoneOfControl }: BoardViewProps) => {
               linewidth={15}
             />
           )}
-          {shortCircuit && shortCircuit.blueDistance && (
+          {shortCircuit && gameMode === GAME_MODE.ZONE_OF_CONTROL && shortCircuit.blueDistance && (
             <Line
               points={[
                 discPos(gameWorldDiscs[shortCircuit.blueDistance.disc1]),
