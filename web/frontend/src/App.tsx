@@ -40,11 +40,11 @@ function App() {
     socket.on("new-state", (gameState: ShortCircuitGameState) => {
       setTestDiscs(gameState.discs);
       if (gameState.gameMode === GAME_MODE.SHORT_CIRCUIT) {
-        setZoneOfControl(gameState.zoneOfControl);
-        setShortCircuit(undefined)
-      } else {
         setShortCircuit(gameState.shortCircuit);
         setZoneOfControl(undefined)
+      } else {
+        setZoneOfControl(gameState.zoneOfControl);
+        setShortCircuit(undefined)
       }
     });
 
