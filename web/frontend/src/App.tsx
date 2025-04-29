@@ -157,7 +157,7 @@ function App() {
                   Red Territory:
                 </div>
                 <div className="text-4xl font-semibold text-white">
-                  {zoneOfControl.bluePercentage ?? 0}%
+                  {zoneOfControl.redPercentage ?? 0}%
                 </div>
               </div>
             </div>
