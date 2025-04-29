@@ -135,7 +135,7 @@ const BoardView = ({ discs, shortCircuit, zoneOfControl, gameMode }: BoardViewPr
               />
             ))}
 
-          {shortCircuit && gameMode === GAME_MODE.ZONE_OF_CONTROL && shortCircuit.redDistance && (
+          {shortCircuit && gameMode === GAME_MODE.SHORT_CIRCUIT && shortCircuit.redDistance && (
             <Line
               points={[
                 discPos(gameWorldDiscs[shortCircuit.redDistance.disc1]),
@@ -145,7 +145,7 @@ const BoardView = ({ discs, shortCircuit, zoneOfControl, gameMode }: BoardViewPr
               linewidth={15}
             />
           )}
-          {shortCircuit && gameMode === GAME_MODE.ZONE_OF_CONTROL && shortCircuit.blueDistance && (
+          {shortCircuit && gameMode === GAME_MODE.SHORT_CIRCUIT && shortCircuit.blueDistance && (
             <Line
               points={[
                 discPos(gameWorldDiscs[shortCircuit.blueDistance.disc1]),
