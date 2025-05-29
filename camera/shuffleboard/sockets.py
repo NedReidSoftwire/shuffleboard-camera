@@ -15,7 +15,7 @@ from shuffleboard.visualise_calibration_coordinates import visualise_calibration
 logger = setup_logger(__file__)
 
 # Upper bound for updates per second (excludes processing time)
-UPDATES_PER_SECOND = 30
+UPDATES_PER_SECOND = 3
 SLEEP_DURATION = 1 / UPDATES_PER_SECOND
 
 sio = socketio.AsyncClient()
