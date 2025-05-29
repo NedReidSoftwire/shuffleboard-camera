@@ -60,7 +60,7 @@ function App() {
   }, []);
 
   const calibrate = () => {
-    console.log("getting cal");
+    setCalibrationImage("loading");
     socket.emit("request-calibration-image");
   };
 
