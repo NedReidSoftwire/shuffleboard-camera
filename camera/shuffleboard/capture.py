@@ -24,12 +24,6 @@ def capture_image(camera_port):
     if result:
         return image 
 
-    cam.release()
-    cam = cv2.VideoCapture(camera_port)
-    # Camera needs time to start up
-    time.sleep(1)
-    logger.warning('Failed to read from camera')
-
 if __name__ == '__main__':
     capture = capture_image(0)
     cv2.imwrite('capture.png', capture)
