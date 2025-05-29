@@ -149,7 +149,7 @@ function App() {
                   current winner:
                 </div>
                 <div className="text-5xl font-semibold text-white">
-                  {(zoneOfControl.bluePercentage ?? 0) > (zoneOfControl.redPercentage?? 0)? 'Blue': 'Red'}
+                  {(zoneOfControl.bluePercentage ?? 0) > (zoneOfControl.redPercentage?? 0) ? 'Blue': (zoneOfControl.bluePercentage ?? 0) == (zoneOfControl.redPercentage?? 0) ? "Tie" : 'Red'}
                 </div>
               </div>
               <div className="col-span-3 bg-red-500 h-full p-4 text-right">
