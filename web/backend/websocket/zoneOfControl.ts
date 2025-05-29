@@ -24,8 +24,22 @@ export const getZoneOfControl = (discPositions: Disc[]): ZoneOfControlState => {
   const discsWithIndices = discPositions.map(
     (disc, index): DiscWithIndex => ({ ...disc, index }),
   );
+  if (!discsWithIndices.length) {
+    return {
+      polygons: [],
+      redPercentage: 0,
+      bluePercentage: 0,
+    }
+  } 
   const midpointsAndPpdVectors =
-    getDiscComparisonMidpointsAndVectors(discsWithIndices);
+    getDiscComparisonMidpointsAndVectors(discsWithIndices); 
+  if (!midpointsAndPpdVectors.length) {
+    return {
+      polygons: [{coordinates: cornersOfTheBoard, colour: discsWithIndices[0].colour}],
+      redPercentage: discsWithIndices[0].colour === TeamColour.RED ? 100 : 0,
+      bluePercentage: discsWithIndices[0].colour === TeamColour.BLUE ? 100 : 0
+    }
+  }
   const boundaryPoints = getLineSegments(
     midpointsAndPpdVectors,
     discsWithIndices,
@@ -391,12 +405,6 @@ const getPolygons = (
               !lineSegmentsToCoverTwice.includes(nextPointOnWall.connectsTo) ||
               direction == "ANTICLOCKWISE")
           ) {
-            console.log(
-              nextPointOnWall,
-              runOutOfCorners,
-              lineSegmentsToCoverTwice,
-              direction,
-            );
             nextPointOnWall = segmentNameToBoundaryMap[currentSegmentName]
               ?.sort(sortByScfNeg)
               .find(
@@ -408,7 +416,6 @@ const getPolygons = (
           }
 
           if (!nextPointOnWall) {
-            console.log(currentPoint, polygon);
             throw new Error("Bad 3");
           }
 
