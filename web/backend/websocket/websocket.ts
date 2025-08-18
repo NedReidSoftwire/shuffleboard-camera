@@ -60,6 +60,14 @@ export const createSocket = (
       io.emit("update-calibration-coordinates", calibrationData),
     );
 
+    socket.on("get-camera-ports", () => {
+      io.emit("get-camera-ports");
+    });
+
+    socket.on("send-camera-ports", (ports: number[]) => {
+      io.emit("camera-ports", ports);
+    });
+
     socket.on("update-code", async () => {
       spawn("bash", ["backend/gitpull.sh"], {
         detached: true,

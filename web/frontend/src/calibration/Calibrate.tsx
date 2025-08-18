@@ -34,12 +34,37 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
   const [corners, setCorners] = useState<PixelCoordinate[]>([]);
   const currentStep = corners.length;
   const [currentCorner, setCurrentCorner] = useState<PixelCoordinate>([0, 0]);
+  const [availablePorts, setAvailablePorts] = useState<number[]>([]);
   const [newPort, setNewPort] = useState(cameraPort);
   const mouseDown = useRef(false);
   const width = window.innerWidth;
   const height = (CAMERA_HEIGHT / CAMERA_WIDTH) * width;
 
   const [reactImage] = useImage("data:image/jpeg;base64," + image);
+  useEffect(() => {
+    const requestPorts = () => {
+      socket.emit("get-camera-ports");
+    };
+
+    if (socket.connected) {
+      requestPorts();
+    }
+
+    socket.on("connect", requestPorts);
+
+    socket.on("camera-ports", (ports: number[]) => {
+      setAvailablePorts(ports);
+      if (!ports.includes(newPort) && ports.length > 0) {
+        setNewPort(ports[0]);
+      }
+    });
+
+    return () => {
+      socket.off("camera-ports");
+      socket.off("connect", requestPorts);
+    };
+  }, []);
+
   useEffect(() => {
     console.log(currentCorner);
   }, [currentCorner]);
@@ -105,11 +130,23 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
         <div className="font-bold text-2xl p-4 text-center">
           Current camera port
         </div>
-        <input
-          type="number"
+        <select
           value={newPort}
-          onChange={(event) => setNewPort(Number(event.target.value ?? 0))}
-        />
+          onChange={(e) => setNewPort(Number(e.target.value))}
+          className="p-2"
+        >
+          {availablePorts.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+        <button
+          className="font-bold text-xl px-2 bg-purple-200 hover:bg-purple-400"
+          onClick={() => socket.emit("get-camera-ports")}
+        >
+          🔄
+        </button>
         <button
           className="font-bold text-2xl p-4 text-center bg-purple-300 hover:bg-purple-500"
           onClick={changePort}
