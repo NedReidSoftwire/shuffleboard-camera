@@ -67,7 +67,6 @@ async def send_state_periodically():
         sio.on("get-calibration-image", send_calibration_image)
         
         async def send_camera_ports():
-            """Respond to request with a list of available camera ports."""
             ports = list_ports()
             logger.info(f"Available camera ports: {ports}")
             await sio.emit("send-camera-ports", ports)

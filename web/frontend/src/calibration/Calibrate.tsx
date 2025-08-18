@@ -41,10 +41,8 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
   const height = (CAMERA_HEIGHT / CAMERA_WIDTH) * width;
 
   const [reactImage] = useImage("data:image/jpeg;base64," + image);
-  // Fetch available ports once socket is connected and on demand
   useEffect(() => {
     const requestPorts = () => {
-      console.log("Requesting camera ports...");
       socket.emit("get-camera-ports");
     };
 
@@ -55,7 +53,6 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
     socket.on("connect", requestPorts);
 
     socket.on("camera-ports", (ports: number[]) => {
-      console.log("Received camera ports", ports);
       setAvailablePorts(ports);
       if (!ports.includes(newPort) && ports.length > 0) {
         setNewPort(ports[0]);

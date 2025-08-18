@@ -60,18 +60,14 @@ export const createSocket = (
       io.emit("update-calibration-coordinates", calibrationData),
     );
 
-        // ---- Camera port relay ----
     socket.on("get-camera-ports", () => {
-      // front-end asks -> relay to python service
       io.emit("get-camera-ports");
     });
 
     socket.on("send-camera-ports", (ports: number[]) => {
-      // python responded -> forward to front-end
       io.emit("camera-ports", ports);
     });
 
-    // ---- Other handlers ----
     socket.on("update-code", async () => {
       spawn("bash", ["backend/gitpull.sh"], {
         detached: true,
