@@ -5,6 +5,7 @@ import asyncio
 import base64
 
 import yaml
+from shuffleboard.available_ports import list_ports
 
 from shuffleboard.base_logger import setup_logger
 from shuffleboard.capture import capture_image
@@ -64,6 +65,14 @@ async def send_state_periodically():
         await sio.connect("http://localhost:3000")
 
         sio.on("get-calibration-image", send_calibration_image)
+        
+        async def send_camera_ports():
+            """Respond to request with a list of available camera ports."""
+            ports = list_ports()
+            logger.info(f"Available camera ports: {ports}")
+            await sio.emit("send-camera-ports", ports)
+
+        sio.on("get-camera-ports", send_camera_ports)
         sio.on("update-calibration-coordinates", update_calibration_coordinates)
 
         logger.info("Camera service connected to web service")
