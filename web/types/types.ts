@@ -55,3 +55,8 @@ export type Coordinate = {
 
 export type PixelCoordinate = [number, number]
 
+export type CameraDevice = {
+    port: string
+    name: string
+}
+

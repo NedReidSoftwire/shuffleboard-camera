@@ -8,13 +8,13 @@ import {
 import { useEffect, useRef, useState } from "react";
 import useImage from "use-image";
 import { Socket } from "socket.io-client";
-import { PixelCoordinate } from "../../../types/types.ts";
+import { PixelCoordinate, CameraDevice } from "../../../types/types.ts";
 
 type CalibrateProps = {
   image: string;
   socket: Socket;
   onComplete: () => void;
-  cameraPort: number;
+  cameraPort?: number;
 };
 
 const pixelDistanceBetween = (a: number[], b: PixelCoordinate) => {
@@ -34,8 +34,8 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
   const [corners, setCorners] = useState<PixelCoordinate[]>([]);
   const currentStep = corners.length;
   const [currentCorner, setCurrentCorner] = useState<PixelCoordinate>([0, 0]);
-  const [availablePorts, setAvailablePorts] = useState<number[]>([]);
-  const [newPort, setNewPort] = useState(cameraPort);
+  const [availablePorts, setAvailablePorts] = useState<CameraDevice[]>([]);
+  const [newPort, setNewPort] = useState<string>(cameraPort?.toString() ?? "0");
   const mouseDown = useRef(false);
   const width = window.innerWidth;
   const height = (CAMERA_HEIGHT / CAMERA_WIDTH) * width;
@@ -52,10 +52,10 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
 
     socket.on("connect", requestPorts);
 
-    socket.on("camera-ports", (ports: number[]) => {
+    socket.on("camera-ports", (ports: CameraDevice[]) => {
       setAvailablePorts(ports);
-      if (!ports.includes(newPort) && ports.length > 0) {
-        setNewPort(ports[0]);
+      if (!ports.some(p => p.port === newPort) && ports.length > 0) {
+        setNewPort(ports[0].port);
       }
     });
 
@@ -75,7 +75,7 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
   };
 
   const changePort = () => {
-    socket.emit("request-calibration-image", newPort);
+    socket.emit("request-calibration-image", parseInt(newPort));
   };
 
   const addCorner = () => {
@@ -132,12 +132,12 @@ function Calibrate({ image, socket, onComplete, cameraPort }: CalibrateProps) {
         </div>
         <select
           value={newPort}
-          onChange={(e) => setNewPort(Number(e.target.value))}
+          onChange={(e) => setNewPort(e.target.value)}
           className="p-2"
         >
-          {availablePorts.map((p) => (
-            <option key={p} value={p}>
-              {p}
+          {availablePorts.map((device) => (
+            <option key={device.port} value={device.port}>
+              {device.name} (Port {device.port})
             </option>
           ))}
         </select>

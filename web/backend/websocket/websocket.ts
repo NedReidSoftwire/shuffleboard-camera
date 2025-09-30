@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { Coordinate, Disc, ShortCircuitGameState } from "../../types/types";
+import { Coordinate, Disc, ShortCircuitGameState, CameraDevice } from "../../types/types";
 import { DISC_DIAMETER } from "../../constants/constants";
 import {
   calculateAverageDiscStates,
@@ -64,7 +64,7 @@ export const createSocket = (
       io.emit("get-camera-ports");
     });
 
-    socket.on("send-camera-ports", (ports: number[]) => {
+    socket.on("send-camera-ports", (ports: CameraDevice[]) => {
       io.emit("camera-ports", ports);
     });
 
